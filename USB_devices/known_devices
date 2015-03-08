@@ -4,11 +4,11 @@
         "name": "Intel Corp. Integrated Rate Matching Hub"
     }, 
     "0951:1641": {
-        "device": "/dev/bus/usb/003/036", 
+        "device": "/dev/bus/usb/003/052", 
         "name": "Kingston Technology "
     }, 
     "1bbb:0166": {
-        "device": "/dev/bus/usb/001/016", 
+        "device": "/dev/bus/usb/001/018", 
         "name": "T & A Mobile Phones "
     }, 
     "1d6b:0002": {
