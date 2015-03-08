@@ -13,8 +13,8 @@ class USB_ports:
 	df = subprocess.check_output("lsusb", shell=True)
 	
 	# Start with no device
-	connected_devices = []
-	known_devices = []
+	connected_devices = {}
+	known_devices = {}
 	def get_connected_devices(self):
 		for dev in self.df.split('\n'):
 			if dev:
@@ -23,27 +23,54 @@ class USB_ports:
 					dev_info_dic = dev_info.groupdict()
 					dev_info_dic['device'] = '/dev/bus/usb/%s/%s' \
 									% (dev_info_dic.pop('bus'), dev_info_dic.pop('device'))
-					self.connected_devices.append(dev_info_dic)
+					ID_device = dev_info_dic.pop("ID", None)
+				
+					self.connected_devices[ID_device] = dev_info_dic
 		
 
-#	def get_known_devices(self):
-		
+	def get_known_devices(self):
+		with open('know_devices', 'rt') as f_in:
+			json.load(self.known_devices, f_in)		
 
 	# Show all connected devices
 	def show_connected_devices(self):
 		for dev in self.connected_devices:
-			print "Location: " + dev['device']
-			print "Name: " + dev['name']
-			print "ID: " + dev['ID']
+			print "ID: " + dev
+			print "Location: " + self.connected_devices[dev]['device']
+			print "Name: " + self.connected_devices[dev]['name']
 			print "-------------------"
 	
+	def show_known_devices(self):
+		for dev in self.connected_devices:
+			print "Location: " + dev
+			print "Name: " + self.know_devices[dev]['device']
+			print "ID: " + self.know_devices[dev]['name']
+			print "-------------------"
 	
-	def write_all_devices(self):
-		with open('known_devices', 'a') as f_out:
-			json.dump(self.connected_devices, f_out, indent = 4)
+	def show_all_devices(self):
+		print "CONNECTED DEVICES:"
+		print "***********************"
+		self.show_connected_devices()
+		
+		print "KNOWN DEVICES:"
+		print "***********************"
+		self.show_known_devices()
+	
+
+	# Write connected devices to a `knowned_device` file, also check if they appear more times
+	def write_connected_devices(self):
+		if (len(self.know_devices) == 0):
+			get_know_devices()
+
+	## Search method can be improved
+#		with open('known_devices', 'rt') as f_out:
+#			for dev in self.connected_devices:
+#				if 
+				
+		json.dump(self.connected_devices, f_out, indent = 4)
 
 a = USB_ports()
 a.get_connected_devices()
 a.show_connected_devices()
-a.write_all_devices()
+#a.write_all_devices()
 
