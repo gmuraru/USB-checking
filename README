@@ -1,3 +1,9 @@
 USB-checking
 
-Check if a connected devices was already seen by the computer
+Check if a connected devices was already seen by the computer.
+If the device was not seen, it will ask for your permission to add it
+to a trusted file ('known_host' in our case)
+
+How to run!
+
+python usb_checking.py or ./usb_checking.py

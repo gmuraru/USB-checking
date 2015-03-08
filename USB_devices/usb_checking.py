@@ -1,5 +1,8 @@
 #! /usr/bin/python
 
+
+
+
 import os.path
 import re
 import subprocess
@@ -154,4 +157,10 @@ if __name__ == "__main__":
 	a.show_new_devices()
 	a.write_new_devices()
 	'''
+
+	# Monitor will continuously check the usb to see if any new device is connected.
+	# If a new device is connected it will ask if you want or not to be added to a known_host file
+	# (this devices can be trusted). If you ask 'Y' the device will be added and will way for another
+	# device and if you ask 'N' that device may ask you once again if you can or not trust him
+	# (it will ask you until you remove it)
 	a.usb_monitor()
