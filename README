@@ -7,3 +7,7 @@ to a trusted file ('known_host' in our case)
 How to run!
 
 python usb_checking.py or ./usb_checking.py
+
+
+Testing folder
+Trying to implement a Gtk interface...still in work! :)
