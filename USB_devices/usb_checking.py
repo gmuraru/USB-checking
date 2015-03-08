@@ -10,8 +10,6 @@ class USB_ports:
 	# Matching after this string
 	device_re = re.compile("Bus\s+(?P<bus>\d+)\s+Device\s+(?P<device>\d+).+ID\s(?P<ID>\w+:\w+)\s(?P<name>.+)$", re.I)
 
-	# The output of the command `lsusb` will be verified
-	df = subprocess.check_output("lsusb", shell=True)
 	
 	# Start with no device
 	new_devices = {}
@@ -19,7 +17,10 @@ class USB_ports:
 	known_devices = {}
 
 	def get_connected_devices(self):
-		for dev in self.df.split('\n'):
+		# The output of the command `lsusb` will be verified
+		df = subprocess.check_output("lsusb", shell=True)
+	
+		for dev in df.split('\n'):
 			if dev:
 				dev_info = self.device_re.match(dev)
 				if dev_info:
@@ -56,20 +57,43 @@ class USB_ports:
 				continue
 			self.new_devices[dev] = self.connected_devices[dev]			
 
+
+
 	def reset(self):
 		self.known_devices = {}
 		self.new_devices = {}
 		self.connected_devices = {}
+
 	# Waiting state and notification if a `new usb` has been connected
 	def usb_monitor(self):
+		# A continuous process (this is only for testing)
 		while (True):
+			# Get known_devices, connected_devices and new_devices
 			self.get_known_devices()
 			self.get_connected_devices()
 			self.get_new_devices()
-			if (len(self.new_devices) != 0)
-				for dev in self.new_devices.keys():
+			if (len(self.new_devices) != 0):
+				# For every new device ask the user if he wants to trust that device
+				for dev in self.new_devices.keys():	
 					print "A new device detected:"
-					print 
+					print "ID: " + dev
+					print "Location: " + self.new_devices[dev]['device']
+					print "Name: " + self.new_devices[dev]['name']	
+					
+					input = raw_input("Do you want to add it to the known devices list?(Y/N):")
+					while (input != "Y" and input != "N"):
+						input = raw_input("Please write Y or N:")
+
+					# If the answer is Y than we can trust that device
+					if (input == "Y"):
+						all_devices = self.known_devices
+						with open('known_devices', 'wt') as f_out:
+							all_devices[dev] = self.connected_devices[dev]
+							json.dump(all_devices, f_out, indent = 4)
+			# Reset all devices and get them again
+			self.reset()
+
+					
 			
 	
 	# Show all connected devices
@@ -120,11 +144,14 @@ class USB_ports:
 
 
 if __name__ == "__main__":
+	
 	a = USB_ports()
+	'''
 	a.get_connected_devices()
 	a.show_connected_devices()
 	print "\n\n"
 	a.get_new_devices()
 	a.show_new_devices()
 	a.write_new_devices()
-	
+	'''
+	a.usb_monitor()
