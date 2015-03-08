@@ -54,7 +54,6 @@ class USB_ports:
 			# The device is already on the known list 
 			if dev in self.known_devices.keys():
 				continue
-			print "wtf"
 			self.new_devices[dev] = self.connected_devices[dev]			
 
 	def reset(self):
