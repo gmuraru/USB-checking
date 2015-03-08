@@ -1,0 +1,26 @@
+{
+    "8087:0024": {
+        "device": "/dev/bus/usb/001/002", 
+        "name": "Intel Corp. Integrated Rate Matching Hub"
+    }, 
+    "0951:1641": {
+        "device": "/dev/bus/usb/003/036", 
+        "name": "Kingston Technology "
+    }, 
+    "1bbb:0166": {
+        "device": "/dev/bus/usb/001/016", 
+        "name": "T & A Mobile Phones "
+    }, 
+    "1d6b:0002": {
+        "device": "/dev/bus/usb/003/001", 
+        "name": "Linux Foundation 2.0 root hub"
+    }, 
+    "1d6b:0003": {
+        "device": "/dev/bus/usb/004/001", 
+        "name": "Linux Foundation 3.0 root hub"
+    }, 
+    "1bcf:2c18": {
+        "device": "/dev/bus/usb/001/003", 
+        "name": "Sunplus Innovation Technology Inc. "
+    }
+}

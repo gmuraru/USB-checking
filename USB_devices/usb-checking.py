@@ -1,5 +1,6 @@
 #! /usr/bin/python
 
+import os.path
 import re
 import subprocess
 import json
@@ -29,8 +30,11 @@ class USB_ports:
 		
 
 	def get_known_devices(self):
-		with open('know_devices', 'rt') as f_in:
-			json.load(self.known_devices, f_in)		
+		if (not os.path.isfile('known_devices')):
+			return
+		
+		with open('known_devices', 'rt') as f_in:
+			self.known_devices = json.load(f_in)		
 
 	# Show all connected devices
 	def show_connected_devices(self):
@@ -40,13 +44,15 @@ class USB_ports:
 			print "Name: " + self.connected_devices[dev]['name']
 			print "-------------------"
 	
+	# Show all known devices
 	def show_known_devices(self):
 		for dev in self.connected_devices:
 			print "Location: " + dev
 			print "Name: " + self.know_devices[dev]['device']
 			print "ID: " + self.know_devices[dev]['name']
 			print "-------------------"
-	
+
+	# Show all devices (connected + known_devices)	
 	def show_all_devices(self):
 		print "CONNECTED DEVICES:"
 		print "***********************"
@@ -59,18 +65,25 @@ class USB_ports:
 
 	# Write connected devices to a `knowned_device` file, also check if they appear more times
 	def write_connected_devices(self):
-		if (len(self.know_devices) == 0):
-			get_know_devices()
+		if (len(self.known_devices) == 0):
+			self.get_known_devices()
 
-	## Search method can be improved
-#		with open('known_devices', 'rt') as f_out:
-#			for dev in self.connected_devices:
-#				if 
+		# All devices = known devices + connected devices
+		all_devices = self.known_devices
+		with open('known_devices', 'wt') as f_out:
+			for dev in self.connected_devices.keys():
+				# The device is already on the known list 
+				if dev in self.known_devices.keys():
+					continue
 				
-		json.dump(self.connected_devices, f_out, indent = 4)
+				# Add him to `not_know_devices` dictionary
+				all_devices[dev] = self.connected_devices[dev]
 
-a = USB_ports()
-a.get_connected_devices()
-a.show_connected_devices()
-#a.write_all_devices()
+			json.dump(all_devices, f_out, indent = 4)
+
+if __name__ == "__main__":
+	a = USB_ports()
+	a.get_connected_devices()
+	a.show_connected_devices()
+	a.write_connected_devices()
 
