@@ -1,40 +1,80 @@
 #! /usr/bin/python
 
-
-
-
 import os.path
-import re
-import subprocess
 import json
+import glob
+import re		
 
-# http://stackoverflow.com/questions/8110310/simple-way-to-query-connected-usb-devices-info-in-python
 class USB_ports:	
-	# Matching after this string
-	device_re = re.compile("Bus\s+(?P<bus>\d+)\s+Device\s+(?P<device>\d+).+ID\s(?P<ID>\w+:\w+)\s(?P<name>.+)$", re.I)
-
 	
 	# Start with no device
 	new_devices = {}
 	connected_devices = {}
 	known_devices = {}
+	
+	# Separator for key
+	separator = ":"
+	
+	# Information to look up
+	looked_information = ["idVendor", "idProduct"];
+	
+	# The unique identifier (indexes of the looked_information)
+	unique_identifier = [0, 1];
+
+	# Where to look up for devices
+	files_to_look = "/sys/bus/usb/devices/[1-9]*"
 
 	def get_connected_devices(self):
-		# The output of the command `lsusb` will be verified
-		df = subprocess.check_output("lsusb", shell=True)
-	
-		for dev in df.split('\n'):
-			if dev:
-				dev_info = self.device_re.match(dev)
-				if dev_info:
-					dev_info_dic = dev_info.groupdict()
-					dev_info_dic['device'] = '/dev/bus/usb/%s/%s' \
-									% (dev_info_dic.pop('bus'), dev_info_dic.pop('device'))
-					ID_device = dev_info_dic.pop("ID", None)
-				
-					self.connected_devices[ID_device] = dev_info_dic
+
+		devices_info = {}
+		## We check the usb devices in the directory
+		for dev in glob.glob(self.files_to_look):
+			# Check if is valid (here we check for a file)
+			information = {}
+			key = ""
+			
+			for index in range(len(self.looked_information)):
+				path_to_file = dev + "/" + self.looked_information[index]
+				if not os.path.isfile(path_to_file):
+					break
+				with open(path_to_file) as f_out:
+					info_file = (f_out.read()).strip()
+					key += info_file + self.separator
+						
+
+			# Eliminate the last ":"
+			key = key[:-1]
+			# The break occured and we can't get all the information
+			# about the usb device
+			if len(key.split(":")) != 2:
+				continue
+			# Withouth the last ":" from the key
+			
+			device = self.get_device_information((key.split(self.separator))[1], (key.split(self.separator))[0])
+			if len(device) == 0:
+				print "Device name not found"
+				continue
+			self.connected_devices[key] = device
 	
 
+	def get_device_information(self, idProduct, idVendor):
+		# Device product and vendor
+		product_vendor = {}
+		regex_idVendor = re.compile('^%s  .*' %(str(idVendor)))
+		regex_idProduct = re.compile('\t%s  .*' %(str(idProduct)))
+		with open("/var/lib/usbutils/usb.ids") as f_in:
+			for line_vendor in f_in:
+				result = regex_idVendor.match(line_vendor)
+				if result:
+					product_vendor["Vendor"] = (result.group(0)).split("  ")[1]
+					for line_product in f_in:
+						result = regex_idProduct.match(line_product)
+						if result:
+							product_vendor["Product"] = (result.group(0)).split("  ")[1]
+							return product_vendor
+			
+		return product_vendor
+						
 
 	def get_known_devices(self):
 		if (not os.path.isfile('known_devices')):
@@ -80,8 +120,10 @@ class USB_ports:
 				for dev in self.new_devices.keys():	
 					print "A new device detected:"
 					print "ID: " + dev
-					print "Location: " + self.new_devices[dev]['device']
-					print "Name: " + self.new_devices[dev]['name']	
+					if "Product" in self.connected_devices[dev].keys():
+						print "Product: " + self.connected_devices[dev]['Product']
+					if "Vendor" in self.connected_devices[dev].keys():
+						print "Vendor: " + self.connected_devices[dev]['Vendor']
 					
 					input = raw_input("Do you want to add it to the known devices list?(Y/N):")
 					while (input != "Y" and input != "N"):
@@ -103,8 +145,10 @@ class USB_ports:
 	def show_connected_devices(self):
 		for dev in self.connected_devices:
 			print "ID: " + dev
-			print "Location: " + self.connected_devices[dev]['device']
-			print "Name: " + self.connected_devices[dev]['name']
+			if "Product" in self.connected_devices[dev].keys():
+				print "Product: " + self.connected_devices[dev]['Product']
+			if "Vendor" in self.connected_devices[dev].keys():
+				print "Vendor: " + self.connected_devices[dev]['Vendor']
 			print "-------------------"
 
 
@@ -113,8 +157,10 @@ class USB_ports:
 	def show_known_devices(self):
 		for dev in self.connected_devices:
 			print "ID: " + dev
-			print "Location: " + self.know_devices[dev]['device']
-			print "Name: " + self.know_devices[dev]['name']
+			if "Product" in self.connected_devices[dev].keys():
+				print "Product: " + self.connected_devices[dev]['Product']
+			if "Vendor" in self.connected_devices[dev].keys():
+				print "Vendor: " + self.connected_devices[dev]['Vendor']
 			print "-------------------"
 
 
@@ -123,8 +169,10 @@ class USB_ports:
 	def show_new_devices(self):		
 		for dev in self.new_devices:
 			print "ID: " + dev
-			print "Location: " + self.new_devices[dev]['device']
-			print "Name: " + self.new_devices[dev]['name']
+			if "Product" in self.connected_devices[dev].keys():
+				print "Product: " + self.connected_devices[dev]['Product']
+			if "Vendor" in self.connected_devices[dev].keys():
+				print "Vendor: " + self.connected_devices[dev]['Vendor']
 			print "-------------------"
 
 

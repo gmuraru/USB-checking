@@ -1,18 +1,13 @@
 {
     "8087:0024": {
-        "device": "/dev/bus/usb/001/002", 
-        "name": "Intel Corp. Integrated Rate Matching Hub"
+        "Product": "Integrated Rate Matching Hub", 
+        "Vendor": "Intel Corp."
     }, 
-    "1d6b:0002": {
-        "device": "/dev/bus/usb/003/001", 
-        "name": "Linux Foundation 2.0 root hub"
+    "058f:6387": {
+        "Product": "Flash Drive", 
+        "Vendor": "Alcor Micro Corp."
     }, 
     "1bcf:2c18": {
-        "device": "/dev/bus/usb/001/003", 
-        "name": "Sunplus Innovation Technology Inc. "
-    }, 
-    "1d6b:0003": {
-        "device": "/dev/bus/usb/004/001", 
-        "name": "Linux Foundation 3.0 root hub"
+        "Vendor": "Sunplus Innovation Technology Inc."
     }
 }
