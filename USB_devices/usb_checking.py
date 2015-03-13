@@ -25,7 +25,6 @@ class USB_ports:
 	files_to_look = "/sys/bus/usb/devices/[1-9]*"
 
 	def get_connected_devices(self):
-
 		devices_info = {}
 		## We check the usb devices in the directory
 		for dev in glob.glob(self.files_to_look):
@@ -137,6 +136,7 @@ class USB_ports:
 						with open('known_devices', 'wt') as f_out:
 							all_devices[dev] = self.connected_devices[dev]
 							json.dump(all_devices, f_out, indent = 4)
+		
 			# Reset all devices and get them again
 			self.reset()
 
@@ -169,6 +169,16 @@ class USB_ports:
 			print "-------------------"
 
 
+	def write_device(self, device):
+		all_devices = self.known_devices
+		
+		with open('known_devices', 'wt') as f_out:
+			# Add him to `not_know_devices` dictionary
+			all_devices[device.keys()[0]] = device[device.keys()[0]]
+
+			json.dump(all_devices, f_out, indent = 4)
+
+
 	# Write connected devices to a `knowned_device` file, also check if they appear more times
 	def write_new_devices(self):
 		# If `new devices` have no key
@@ -180,7 +190,6 @@ class USB_ports:
 		with open('known_devices', 'wt') as f_out:
 			for dev in self.new_devices.keys():
 			
-				# Add him to `not_know_devices` dictionary
 				all_devices[dev] = self.connected_devices[dev]
 
 			json.dump(all_devices, f_out, indent = 4)
