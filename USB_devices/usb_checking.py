@@ -88,7 +88,12 @@ class USB_ports:
 	def __init__(self):
 		self.get_known_devices()		
 
-
+	# Printing info about the device
+	def information_print(self, requests, information):
+		for name in requests:
+			if name in information.keys():
+				print name + ": " + information[name]
+		
 
 	def get_new_devices(self):
 		if (len(self.connected_devices) == 0):
@@ -120,17 +125,14 @@ class USB_ports:
 				for dev in self.new_devices.keys():	
 					print "A new device detected:"
 					print "ID: " + dev
-					if "Product" in self.connected_devices[dev].keys():
-						print "Product: " + self.connected_devices[dev]['Product']
-					if "Vendor" in self.connected_devices[dev].keys():
-						print "Vendor: " + self.connected_devices[dev]['Vendor']
+					self.information_print(["Product", "Vendor"], self.connected_devices[dev])
 					
 					input = raw_input("Do you want to add it to the known devices list?(Y/N):")
 					while (input != "Y" and input != "N"):
 						input = raw_input("Please write Y or N:")
 
 					# If the answer is Y than we can trust that device
-					if (input == "Y"):
+					if (input.upper() == "Y"):
 						all_devices = self.known_devices
 						with open('known_devices', 'wt') as f_out:
 							all_devices[dev] = self.connected_devices[dev]
@@ -145,10 +147,7 @@ class USB_ports:
 	def show_connected_devices(self):
 		for dev in self.connected_devices:
 			print "ID: " + dev
-			if "Product" in self.connected_devices[dev].keys():
-				print "Product: " + self.connected_devices[dev]['Product']
-			if "Vendor" in self.connected_devices[dev].keys():
-				print "Vendor: " + self.connected_devices[dev]['Vendor']
+			self.information_print(["Product", "Vendor"], self.connected_devices[dev])
 			print "-------------------"
 
 
@@ -157,10 +156,7 @@ class USB_ports:
 	def show_known_devices(self):
 		for dev in self.connected_devices:
 			print "ID: " + dev
-			if "Product" in self.connected_devices[dev].keys():
-				print "Product: " + self.connected_devices[dev]['Product']
-			if "Vendor" in self.connected_devices[dev].keys():
-				print "Vendor: " + self.connected_devices[dev]['Vendor']
+			self.information_print(["Product", "Vendor"], self.connected_devices[dev])
 			print "-------------------"
 
 
@@ -169,10 +165,7 @@ class USB_ports:
 	def show_new_devices(self):		
 		for dev in self.new_devices:
 			print "ID: " + dev
-			if "Product" in self.connected_devices[dev].keys():
-				print "Product: " + self.connected_devices[dev]['Product']
-			if "Vendor" in self.connected_devices[dev].keys():
-				print "Vendor: " + self.connected_devices[dev]['Vendor']
+			self.information_print(["Product", "Vendor"], self.connected_devices[dev])
 			print "-------------------"
 
 
