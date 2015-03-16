@@ -1,9 +1,10 @@
 #! /usr/bin/python
 
-from gi.repository import Gtk
+import threading
+from gi.repository import Gtk, GObject, GLib
 import usb_checking
-
-
+import time
+import gobject
 
 # Modified tutorial http://python-gtk-3-tutorial.readthedocs.org/en/latest/treeview.html
 class USB_ViewFilterWindow(Gtk.Window):
@@ -12,9 +13,7 @@ class USB_ViewFilterWindow(Gtk.Window):
     
     def __init__(self):
       	Gtk.Window.__init__(self, title = "Treeview Filter Demo")
-        
-#       self.Device.get_known_devices()
-#       self.Device.get_connected_devices()
+
 
         self.set_border_width(10)
 
@@ -36,6 +35,7 @@ class USB_ViewFilterWindow(Gtk.Window):
         self.treeview = Gtk.TreeView.new_with_model(self.usb_filter)
         for i, column_title in enumerate(["Known Device", "Connected", "ID", "Vendor", "Product"]):
             renderer = Gtk.CellRendererText()
+            renderer.set_property('cell-background', 'grey')
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             self.treeview.append_column(column)
 
@@ -50,12 +50,12 @@ class USB_ViewFilterWindow(Gtk.Window):
         self.scrollable_treelist.set_vexpand(True)
         self.grid.attach(self.scrollable_treelist, 0, 0, 8, 10)
  	
-		# Refresh button
+	# Refresh button
         button = Gtk.Button("Refresh")
         self.buttons.append(button)
         button.connect("clicked", self.refresh)
 	    
-		# Write to know devices
+	# Write to know devices
         button = Gtk.Button("Write selected")
         self.buttons.append(button)
         button.connect("clicked", self.write)
@@ -66,16 +66,18 @@ class USB_ViewFilterWindow(Gtk.Window):
         self.scrollable_treelist.add(self.treeview)
 
 
-   
-        self.show_all()
+        self.show_all()	
+	        
+	GObject.timeout_add(200, self.refresh)	
 
 
-	# Write selected device to file
+    # Write selected device to file
     def write(self, button):
         treeselection = self.treeview.get_selection()
-        model, treeiter = treeselection.get_selected()
+	model, treeiter = treeselection.get_selected()
         device = {}
         complete_dev = {}
+        print treeiter
         if treeiter != None:
              if model[treeiter][0] == True:
        	          return
@@ -84,7 +86,6 @@ class USB_ViewFilterWindow(Gtk.Window):
              if model[treeiter][4] != '':
                   device['Product'] = model[treeiter][4]
  
-             print "reach"
              complete_dev[model[treeiter][2]] = device
              self.Device.write_device(complete_dev)
         else:
@@ -95,14 +96,19 @@ class USB_ViewFilterWindow(Gtk.Window):
 
 
 
-	# Check new devices
-    def refresh(self, button):
+    # Check new devices
+    def refresh(self):
+        treeselection = self.treeview.get_selection()
+        model, treeiter = treeselection.get_selected()    
+        if treeiter != None:
+            index = (model.get_path(treeiter)).get_indices()[0]
+
         self.Device.reset()	
         self.usb_list.clear()
         self.Device.get_known_devices()
         self.Device.get_connected_devices()
         self.Device.get_new_devices()
-      
+            
         for dev in self.Device.connected_devices.keys():
             vendor = ""
             product = ""
@@ -112,27 +118,31 @@ class USB_ViewFilterWindow(Gtk.Window):
                 product = self.Device.connected_devices[dev]["Product"]
 
             if dev in self.Device.known_devices.keys():
-            	self.usb_list.append((True, True, dev, vendor, product))
+      	        self.usb_list.append((True, True, dev, vendor, product))
             else:
                 self.usb_list.append((False, True, dev, vendor, product))
 		
         for dev in self.Device.known_devices.keys():
-            if dev in self.Device.connected_devices.keys():
+             if dev in self.Device.connected_devices.keys():
                 continue
 
-            vendor = ""
-            product = ""
-            if "Vendor" in self.Device.known_devices[dev].keys():
-                vendor = self.Device.known_devices[dev]["Vendor"]	
-            if "Product" in self.Device.known_devices[dev].keys():
-                product = self.Device.known_devices[dev]["Product"]
-            if dev in self.Device.connected_devices.keys():
-                continue
+             vendor = ""
+             product = ""
+               
+             if "Vendor" in self.Device.known_devices[dev].keys():
+                 vendor = self.Device.known_devices[dev]["Vendor"]	
+             if "Product" in self.Device.known_devices[dev].keys():
+                 product = self.Device.known_devices[dev]["Product"]
+             if dev in self.Device.connected_devices.keys():
+                 continue
 		   
-            self.usb_list.append((True, False, dev, vendor, product))
+             self.usb_list.append((True, False, dev, vendor, product))
 
-
-
+        if treeiter != None:
+              self.treeview.set_cursor(index)
+        
+        return True
+  
     def usb_filter_func(self, model, iter, data):
         """Tests if the usb is connected, known device or unknown"""
         if self.current_filter_usb is None or self.current_filter_usb == "None":
@@ -140,7 +150,7 @@ class USB_ViewFilterWindow(Gtk.Window):
         elif self.current_filter_usb == "Known Devices":
             	return model[iter][0] == True
         elif self.current_filter_usb == "Unknown Devices":
-                 return model[iter][0] == False
+                return model[iter][0] == False
         else:
                 return model[iter][1] == True
 
@@ -151,7 +161,9 @@ class USB_ViewFilterWindow(Gtk.Window):
         self.usb_filter.refilter()
 
 
-win = USB_ViewFilterWindow()
-win.connect("delete-event", Gtk.main_quit)
-win.show_all()
-Gtk.main()
+if __name__ == "__main__":
+        GObject.threads_init()
+	win = USB_ViewFilterWindow()
+	win.connect("delete-event", Gtk.main_quit)
+	win.show_all()
+	Gtk.main()
