@@ -16,7 +16,8 @@ class USB_ports:
 	separator = ":"
 	
 	# Information to look up
-	looked_information = ["idVendor", "idProduct"];
+	looked_information = ["idVendor", "idProduct", "bDeviceClass", "bDeviceProtocol",
+			      "bcdDevice", "bConfigurationValue", "bmAttributes"];
 	
 	# The unique identifier (indexes of the looked_information)
 	unique_identifier = [0, 1];
@@ -45,7 +46,7 @@ class USB_ports:
 			key = key[:-1]
 			# The break occured and we can't get all the information
 			# about the usb device
-			if len(key.split(":")) != 2:
+			if len(key.split(":")) != len(self.looked_information):
 				continue
 			# Withouth the last ":" from the key
 			
