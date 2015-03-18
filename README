@@ -6,8 +6,11 @@ to a trusted file ('known_host' in our case)
 
 How to run!
 
-python usb_checking.py or ./usb_checking.py
+--For the command line--
+python usb_checking.py
 
+--For the Gtk+ interface--
+python usb_listing.py
 
-Testing folder
-Trying to implement a Gtk interface...still in work! :)
+Still working on improvements regarding the interface and
+optimi

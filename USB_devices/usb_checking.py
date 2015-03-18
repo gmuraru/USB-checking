@@ -20,7 +20,8 @@ class USB_ports:
 			      "bcdDevice", "bConfigurationValue", "bmAttributes"];
 	
 	# The unique identifier (indexes of the looked_information)
-	unique_identifier = [0, 1];
+	# Currently all the information is used for unique identification
+	unique_identifier = [0, 1, 2, 3, 5, 6];
 
 	# Where to look up for devices
 	files_to_look = "/sys/bus/usb/devices/[1-9]*"

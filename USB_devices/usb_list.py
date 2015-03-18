@@ -12,9 +12,9 @@ class USB_ViewFilterWindow(Gtk.Window):
     Device = usb_checking.USB_ports()
     
     def __init__(self):
-      	Gtk.Window.__init__(self, title = "Treeview Filter Demo")
+      	Gtk.Window.__init__(self, title = "USBGnomento")
 
-
+	self.set_resizable(True)
         self.set_border_width(10)
 
         # Setting up the self.grid in which the elements are to be positionned
