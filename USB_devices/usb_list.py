@@ -33,7 +33,7 @@ class USB_ViewFilterWindow(Gtk.Window):
         self.usb_filter.set_visible_func(self.usb_filter_func)
 
         self.treeview = Gtk.TreeView.new_with_model(self.usb_filter)
-        for i, column_title in enumerate(["Known Device", "Connected", "ID", "Vendor", "Product"]):
+        for i, column_title in enumerate(["Known Device", "Connected", "Id", "Vendor", "Product"]):
             renderer = Gtk.CellRendererText()
             renderer.set_property('cell-background', 'grey')
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
@@ -74,7 +74,7 @@ class USB_ViewFilterWindow(Gtk.Window):
     # Write selected device to file
     def write(self, button):
         treeselection = self.treeview.get_selection()
-	model, treeiter = treeselection.get_selected()
+    	model, treeiter = treeselection.get_selected()
         device = {}
         complete_dev = {}
         print treeiter
@@ -82,9 +82,9 @@ class USB_ViewFilterWindow(Gtk.Window):
              if model[treeiter][0] == True:
        	          return
              if model[treeiter][3] != '':
-                  device['Vendor'] = model[treeiter][3]
+                  device['Vendor'] = model[treeiter][2]
              if model[treeiter][4] != '':
-                  device['Product'] = model[treeiter][4]
+                  device['Product'] = model[treeiter][3]
  
              complete_dev[model[treeiter][2]] = device
              self.Device.write_device(complete_dev)

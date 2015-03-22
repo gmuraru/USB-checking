@@ -1,17 +1,9 @@
 {
     "04ca:3006:e0:01:0002:1:e0": {
-        "Product": "PagePro 1250W", 
-        "Vendor": "Lite-On Technology Corp."
-    }, 
-    "8087:0024:09:01:0000:1:e0": {
-        "Product": "Integrated Rate Matching Hub", 
-        "Vendor": "Intel Corp."
-    }, 
-    "058f:6387:00:00:010b:1:80": {
-        "Product": "Flash Drive", 
-        "Vendor": "Alcor Micro Corp."
+        "Product": "Lite-On Technology Corp.", 
+        "Vendor": "04ca:3006:e0:01:0002:1:e0"
     }, 
     "1bcf:2c18:ef:01:0009:1:80": {
-        "Vendor": "Sunplus Innovation Technology Inc."
+        "Vendor": "1bcf:2c18:ef:01:0009:1:80"
     }
 }
