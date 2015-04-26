@@ -16,12 +16,12 @@ class USB_ports:
 	separator = ":"
 	
 	# Information to look up
-	looked_information = ["idVendor", "idProduct", "bDeviceClass", "bDeviceProtocol",
-			      "bcdDevice", "bConfigurationValue", "bmAttributes"];
+	looked_information = ["idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass",
+				  "bDeviceProtocol", "bcdDevice", "bNumConfigurations"];
 	
 	# The unique identifier (indexes of the looked_information)
 	# Currently all the information is used for unique identification
-	unique_identifier = [0, 1, 2, 3, 5, 6];
+	unique_identifier = [0, 1, 2, 3, 5, 6, 7];
 
 	# Where to look up for devices
 	files_to_look = "/sys/bus/usb/devices/[1-9]*"
