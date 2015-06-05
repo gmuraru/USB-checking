@@ -24,7 +24,7 @@ class USB_ports:
 	unique_identifier = [0, 1, 2, 3, 5, 6, 7];
 
 	# Where to look up for devices
-	files_to_look = "/sys/bus/usb/devices/[1-9]*"
+	files_to_look = "/sys/bus/usb/drivers/usb/[1-9]*"
 
 	def get_connected_devices(self):
 		devices_info = {}
