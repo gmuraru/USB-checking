@@ -12,5 +12,4 @@ python usb_checking.py
 --For the Gtk+ interface--
 python usb_listing.py
 
-Still working on improvements regarding the interface and
-optimi
+Still working on improvements regarding the interface.
