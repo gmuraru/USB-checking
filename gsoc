@@ -1,6 +1,0 @@
-- 2 programs to enable and disable USB devices
-- disable usb into google unbind
-
-- inhibit usb while another program is running inhibits stop the aditon of new devices
-gnome ssession inhibits
-dbus interface -
