@@ -35,7 +35,6 @@ def inhibit_USB(pid):
 	while pid.wait():
 		for full_dev in glob.glob(files_to_look):
 			dev = full_dev.split("/")[-1]
-			print "WTF"
 			if dev not in not_connected and dev not in already_connected:
 				print "Blocked %s" %dev
 				not_connected.append(dev)
