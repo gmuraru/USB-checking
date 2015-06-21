@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 import usb_on
 import usb_off
@@ -47,14 +47,14 @@ if __name__ == "__main__":
 	process_with_args = sys.argv[2:]
 	if not process_with_args:
 		usage()
-		exit(-1)
-	pid = start_process(process_with_args)
+	else:
+		pid = start_process(process_with_args)
 
-	already_connected = form_initial_devices()
+		already_connected = form_initial_devices()
 
-	try:
-		inhibit_USB(pid)
-		rebind_devices()
-	except KeyboardInterrupt:
-		rebind_devices()
+		try:
+			inhibit_USB(pid)
+			rebind_devices()
+		except KeyboardInterrupt:
+			rebind_devices()
 

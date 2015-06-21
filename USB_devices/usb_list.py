@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 import threading
 from gi.repository import Gtk, GObject, GLib
