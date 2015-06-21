@@ -14,8 +14,7 @@ to a trusted file (*known_host* in our case)
 
 ```python usb_listing.py```
 
-
-
+---
 
 ###Added
 USB turn on
