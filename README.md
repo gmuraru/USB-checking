@@ -14,7 +14,7 @@ python usb_listing.py
 
 Still working on improvements regarding the interface.
 
--Added
+Added
 USB turn on
 	python usb_on.py bus_id (bus_id the given parameter)
 
