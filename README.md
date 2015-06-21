@@ -1,20 +1,21 @@
-USB-checking
+#USB-checking
 
 Check if a connected devices was already seen by the computer.
 If the device was not seen, it will ask for your permission to add it
-to a trusted file ('known_host' in our case)
+to a trusted file (*known_host* in our case)
 
-How to run!
+##How to run!
 
--For the command line--
-python usb_checking.py
+###For the command line
 
--For the Gtk+ interface--
-python usb_listing.py
+```python usb_checking.py```
 
-Still working on improvements regarding the interface.
+###For the Gtk+ interface
 
-#Added
+```python usb_listing.py```
+
+
+##Added
 USB turn on
 
 ```python usb_on.py bus_id (bus_id the given parameter)```
@@ -27,5 +28,7 @@ USB-inhibit
 
 ```python usb-inhibit -- application_name```
 
-While the "application_name" is running let no USB devices
+While the *application_name* is running let no USB devices
 connect to your PC.
+
+Still working on improvements regarding the interface.
