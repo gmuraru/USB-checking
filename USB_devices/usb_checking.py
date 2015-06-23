@@ -2,8 +2,8 @@
 
 import os.path
 import json
-import glob
-import re		
+from pyudev import Context, Monitor
+import re
 
 class USB_ports:	
 	
@@ -12,49 +12,66 @@ class USB_ports:
 	connected_devices = {}
 	known_devices = {}
 	
+	# Pyudev monitor
+	context = Context()
+	monitor = Monitor.from_netlink(context)
+
+	monitor.filter_by(subsystem='usb')
+
 	# Separator for key
 	separator = ":"
 	
 	# Information to look up
-	looked_information = ["idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass",
-				  "bDeviceProtocol", "bcdDevice", "bNumConfigurations"];
+	looked_information = ["bNumConfigurations",
+						"iSerialNumber",
+						"iProduct",
+						"iManufacturer",
+						"bcdDevice",
+						"idProduct",
+						"idVendor",
+						"bMaxPacketSize",
+						"bDeviceProtocol",
+						"bDeviceSubClass",
+						"bDeviceClass",
+						"bcdUSB",
+						"bDescriptorType",
+						"bLength"]
 	
 	# The unique identifier (indexes of the looked_information)
 	# Currently all the information is used for unique identification
-	unique_identifier = [0, 1, 2, 3, 5, 6, 7];
-
-	# Where to look up for devices
-	files_to_look = "/sys/bus/usb/drivers/usb/[1-9]*"
+	unique_identifier = range(len(looked_information));
 
 	def get_connected_devices(self):
 		devices_info = {}
-		## We check the usb devices in the directory
-		for dev in glob.glob(self.files_to_look):
-			# Check if is valid (here we check for a file)
+		
+
+		for dev in self.context.list_devices(subsystem='usb'):#, DEVTYPE='usb_device'):
 			information = {}
 			key = ""
-			
-			for index in range(len(self.looked_information)):
-				path_to_file = dev + "/" + self.looked_information[index]
-				if not os.path.isfile(path_to_file):
-					break
-				with open(path_to_file) as f_out:
-					info_file = (f_out.read()).strip()
-					key += info_file + self.separator
-						
+		
+			attributes = dev.attributes
+
+			for info in self.looked_information:
+				if info in attributes:
+					key += attributes.get(info)
+					key += ":"
+
+					if info == "idProduct":
+						dev_idProduct = attributes.get(info)
+					elif info == "idVendor":
+						dev_idVendor = attributes.get(info)
+
 
 			# Eliminate the last ":"
 			key = key[:-1]
-			# The break occured and we can't get all the information
-			# about the usb device
-			if len(key.split(":")) != len(self.looked_information):
-				continue
-			# Withouth the last ":" from the key
+
 			
-			device = self.get_device_information((key.split(self.separator))[1], (key.split(self.separator))[0])
-			if len(device) == 0:
-				print "Device name not found"
+			# The break occured and we can not get a piece of information
+			# about the usb device
+			if len(key.split(":")) <= 0.3 * len(self.looked_information):
 				continue
+		
+			device = self.get_device_information(dev_idProduct, dev_idVendor)
 			self.connected_devices[key] = device
 	
 
@@ -201,8 +218,10 @@ class USB_ports:
 if __name__ == "__main__":
 	
 	a = USB_ports()
-	'''
+	
 	a.get_connected_devices()
+	print a.connected_devices
+	'''
 	a.show_connected_devices()
 	print "\n\n"
 	a.get_new_devices()
@@ -215,4 +234,4 @@ if __name__ == "__main__":
 	# (this devices can be trusted). If you ask 'Y' the device will be added and will way for another
 	# device and if you ask 'N' that device may ask you once again if you can or not trust him
 	# (it will ask you until you remove it)
-	a.usb_monitor()
+	#a.usb_monitor()
