@@ -1,5 +1,6 @@
 #USB-checking
 
+##USB_device folder
 Check if a connected devices was already seen by the computer.
 If the device was not seen, it will ask for your permission to add it
 to a trusted file (*known_host* in our case)
@@ -14,9 +15,12 @@ to a trusted file (*known_host* in our case)
 
 ```python usb_listing.py```
 
----
 
-###Added
+###Updates
+* Add pyudev library to check for new added devices
+
+---
+## USB_modify folder
 USB turn on
 
 ```python usb_on.py bus_id (bus_id the given parameter)```
