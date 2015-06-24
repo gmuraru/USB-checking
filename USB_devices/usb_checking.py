@@ -80,6 +80,7 @@ class USB_ports:
 		product_vendor = {}
 		regex_idVendor = re.compile('^%s  .*' %(str(idVendor)))
 		regex_idProduct = re.compile('\t%s  .*' %(str(idProduct)))
+
 		with open("/var/lib/usbutils/usb.ids") as f_in:
 			for line_vendor in f_in:
 				result = regex_idVendor.match(line_vendor)
@@ -95,7 +96,7 @@ class USB_ports:
 						
 
 	def get_known_devices(self):
-		if (not os.path.isfile('known_devices')):
+		if not os.path.isfile('known_devices'):
 			return
 		
 		with open('known_devices', 'rt') as f_in:
@@ -132,11 +133,11 @@ class USB_ports:
 
 	# Waiting state and notification if a `new usb` has been connected
 	def usb_monitor(self):
+		monitor.start()
+		self.get_connected_devices()
 		# A continuous process (this is only for testing)
-		while (True):
 			# Get known_devices, connected_devices and new_devices
 			self.get_known_devices()
-			self.get_connected_devices()
 			self.get_new_devices()
 			if (len(self.new_devices) != 0):
 				# For every new device ask the user if he wants to trust that device
