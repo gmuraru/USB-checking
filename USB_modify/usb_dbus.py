@@ -16,7 +16,6 @@ class USB_DBus(dbus.service.Object):
 
 	@dbus.service.method('org.me.usb')
 	def usb_no(self, bus_id):
-		print(bus_id)
 		usb_off.usb_disable(bus_id)
 
 	@dbus.service.method('org.me.usb')
