@@ -7,7 +7,6 @@ import sys
 import subprocess
 import pyudev
 
-files_to_look = "/sys/bus/usb/drivers/usb/[1-9]*"
 already_connected = []
 not_connected = []
 
@@ -20,13 +19,13 @@ FLAG_REMAIN_UNSEEN = False
 
 
 def usage():
-	print "Bad program call"
-	print "Call:"
-	print "\t Method1: ./usb-inhibit.py -- process_with_arguments"
-	print "\t Method2: python usb-inhibi.py -- process_with_argument"
-	print "Options:"
-	print ("\t -ru -- remain unseen, after the program finishes running leave "
-			"the USB devices drivers (that were connected durring"
+	print ("Bad program call"
+			"\nCall:"
+			"\n\t Method1: ./usb-inhibit.py -- process_with_arguments"
+	        "\n\t Method2: python usb-inhibi.py -- process_with_arguments"
+			"\nOptions:"
+			"\n\t -u -- unseen, after the program finishes running leave"
+			"the USB devices drivers (that were connected during"
 			"\n\t\tthe program execution) unloaded")
 
 
@@ -38,7 +37,6 @@ def form_initial_devices():
 	return already_connected
 
 def start_process(process_with_args):
-	#pid = subprocess.call(process_with_args)
 	pid = subprocess.Popen(process_with_args)
 	return pid
 
@@ -59,7 +57,7 @@ def inhibit_USB(pid):
 
 	for action, device in monitor:
 		dev = device.sys_name.split(":")[0]
-		print dev
+		print(dev)
 		if action == 'add':
 			not_connected.append(dev)
 
