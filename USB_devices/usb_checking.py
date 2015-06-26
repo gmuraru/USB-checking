@@ -102,8 +102,6 @@ class USB_ports:
 		with open('known_devices', 'rt') as f_in:
 			self.known_devices = json.load(f_in)		
 
-
-
 	def __init__(self):
 		self.get_known_devices()		
 
@@ -113,7 +111,7 @@ class USB_ports:
 			if name in information.keys():
 				print name + ": " + information[name]
 		
-
+	'''
 	def get_new_devices(self):
 		if (len(self.connected_devices) == 0):
 			self.get_connected_devices()
@@ -123,26 +121,28 @@ class USB_ports:
 			if dev in self.known_devices.keys():
 				continue
 			self.new_devices[dev] = self.connected_devices[dev]			
-
+	'''
 
 
 	def reset(self):
 		self.known_devices = {}
-		self.new_devices = {}
 		self.connected_devices = {}
 
 	# Waiting state and notification if a `new usb` has been connected
 	def usb_monitor(self):
 		monitor.start()
 		self.get_connected_devices()
+
 		# A continuous process (this is only for testing)
-			# Get known_devices, connected_devices and new_devices
+		# Get known_devices, connected_devices and new_devices
+		for action, device in monitor:
 			self.get_known_devices()
-			self.get_new_devices()
+			if action == 'add':
+				
 			if (len(self.new_devices) != 0):
 				# For every new device ask the user if he wants to trust that device
 				for dev in self.new_devices.keys():	
-					print "A new device detected:"
+					print "A new device attached:"
 					print "ID: " + dev
 					self.information_print(["Product", "Vendor"], self.connected_devices[dev])
 					
