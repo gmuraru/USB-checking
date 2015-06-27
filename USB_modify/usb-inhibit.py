@@ -96,6 +96,9 @@ if __name__ == "__main__":
 			try:
 				inhibit_USB(pid)
 				rebind_devices()
+			except IOError:
+				print ("You do not have enough permissions to create the file")
 			except KeyboardInterrupt:
 				rebind_devices()
+
 
