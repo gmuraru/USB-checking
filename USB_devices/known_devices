@@ -1,9 +1,10 @@
 {
-    "1bcf:2c18:ef:02:01:0009:1": {
-        "Vendor": "1bcf:2c18:ef:02:01:0009:1"
+    "1::::0009:2c18:1bcf::01:02:ef:::": {
+        "Product": "HD WebCam", 
+        "Vendor": "Sunplus Innovation Technology Inc."
     }, 
-    "8087:0024:09:00:01:0000:1": {
-        "Product": "Intel Corp.", 
-        "Vendor": "8087:0024:09:00:01:0000:1"
+    "1::::010b:6387:058f::00:00:00:::": {
+        "Product": "Flash Drive", 
+        "Vendor": "Alcor Micro Corp."
     }
 }

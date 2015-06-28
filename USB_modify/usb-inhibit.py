@@ -33,10 +33,9 @@ def usage():
 # Look for already connected devices and take their bus_id
 def form_initial_devices():
 
-	for device in context.list_devices(subsystem='usb'):
+	for device in context.list_devices(subsystem='usb', DEVTYPE='usb_device'):
 
-		if device.device_type == 'usb_device' and \
-			device.find_parent(subsystem='usb', device_type='usb_device') != None:
+		if device.find_parent(subsystem='usb', device_type='usb_device') != None:
 
 			already_connected.append(device.sys_name.split('/')[-1])
 
@@ -68,8 +67,9 @@ def inhibit_USB(pid):
 		f_out.write("0")
 
 	for action, device in monitor:
+		print (device.sys_name)
 		dev = device.sys_name.split(':')[0]
-		print(dev)
+		print (dev)
 		if action == 'add':
 			not_connected.append(dev)
 
