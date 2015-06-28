@@ -54,12 +54,14 @@ class USB_ports:
 			for info in self.looked_information:
 				if info in attributes:
 					key += attributes.get(info)
-					key += ":"
 
 					if info == "idProduct":
 						dev_idProduct = attributes.get(info)
 					elif info == "idVendor":
 						dev_idVendor = attributes.get(info)
+
+				else:
+					key += ':'
 
 
 			# Eliminate the last ":"
@@ -68,14 +70,16 @@ class USB_ports:
 			
 			# The break occured and we can not get a piece of information
 			# about the usb device
-			if len(key.split(":")) <= 0.3 * len(self.looked_information):
-				continue
+			#if len(key.split(":")) <= 0.3 * len(self.looked_information):
+			#	continue
 		
-			device = self.get_device_information(dev_idProduct, dev_idVendor)
+			device = self.get_device_name(dev_idProduct, dev_idVendor)
 			self.connected_devices[key] = device
+
+
 	
 
-	def get_device_information(self, idProduct, idVendor):
+	def get_device_name(self, idProduct, idVendor):
 		# Device product and vendor
 		product_vendor = {}
 		regex_idVendor = re.compile('^%s  .*' %(str(idVendor)))
@@ -83,17 +87,37 @@ class USB_ports:
 
 		with open("/var/lib/usbutils/usb.ids") as f_in:
 			for line_vendor in f_in:
-				result = regex_idVendor.match(line_vendor)
-				if result:
-					product_vendor["Vendor"] = (result.group(0)).split("  ")[1]
+				res = regex_idVendor.match(line_vendor)
+
+				if res:
+					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
+
 					for line_product in f_in:
-						result = regex_idProduct.match(line_product)
-						if result:
-							product_vendor["Product"] = (result.group(0)).split("  ")[1]
-							return product_vendor
+						res = regex_idProduct.match(line_product)
+
+						if res:
+							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
+							return prod_vendor
 			
 		return product_vendor
-						
+	
+	def ask_user(dev_information, bus_id):
+		print ("A new device attached")
+		print ("Bus_ID: " + bus_id) 
+		
+		self.information_print(dev_information)
+
+		input = raw_input("Do you want to add it to the known
+														devices list?(Y/N):")
+		while (input != "Y" and input != "N"):
+			input = raw_input("Please write Y or N:")
+
+		# If the answer is Y than we can trust that device
+		if (input.upper() == "Y"):
+			self.known_devices.append(dev_information)
+		
+
+					
 
 	def get_known_devices(self):
 		if not os.path.isfile('known_devices'):
@@ -103,61 +127,45 @@ class USB_ports:
 			self.known_devices = json.load(f_in)		
 
 	def __init__(self):
-		self.get_known_devices()		
+		self.get_connected_devices()
+		self.get_known_devices()
 
-	# Printing info about the device
-	def information_print(self, requests, information):
-		for name in requests:
-			if name in information.keys():
-				print name + ": " + information[name]
-		
-	'''
-	def get_new_devices(self):
-		if (len(self.connected_devices) == 0):
-			self.get_connected_devices()
-		
-		for dev in self.connected_devices.keys():
-			# The device is already on the known list 
-			if dev in self.known_devices.keys():
-				continue
-			self.new_devices[dev] = self.connected_devices[dev]			
-	'''
+	# Printing informations about the device
+	def information_print(self, dev_information):
+		dev_info_split = dev_information.split(':')
 
-
-	def reset(self):
-		self.known_devices = {}
-		self.connected_devices = {}
+		for info_index in range(len(self.looked_information)):
+			print (self.looked_information[info_index] + ": " 
+												+ dev_info_split[info_index])
+	
+	def usb_finish():
+		with open('known_devices', 'wt') as f_out:
+			json.dump(self.known_devicesm f_out, indent = 4)
 
 	# Waiting state and notification if a `new usb` has been connected
 	def usb_monitor(self):
+
+		with open("/sys/bus/usb/drivers_autoprobe", "wt") as f_out:
+			f_out.write("0")
+
 		monitor.start()
 		self.get_connected_devices()
 
-		# A continuous process (this is only for testing)
-		# Get known_devices, connected_devices and new_devices
 		for action, device in monitor:
+			
+			# Get the known devices list
 			self.get_known_devices()
+
 			if action == 'add':
+				
+
+			if action == 'remove':
+				if 
 				
 			if (len(self.new_devices) != 0):
 				# For every new device ask the user if he wants to trust that device
 				for dev in self.new_devices.keys():	
-					print "A new device attached:"
-					print "ID: " + dev
-					self.information_print(["Product", "Vendor"], self.connected_devices[dev])
-					
-					input = raw_input("Do you want to add it to the known devices list?(Y/N):")
-					while (input != "Y" and input != "N"):
-						input = raw_input("Please write Y or N:")
-
-					# If the answer is Y than we can trust that device
-					if (input.upper() == "Y"):
-						all_devices = self.known_devices
-						with open('known_devices', 'wt') as f_out:
-							all_devices[dev] = self.connected_devices[dev]
-							json.dump(all_devices, f_out, indent = 4)
-		
-			# Reset all devices and get them again
+							# Reset all devices and get them again
 			self.reset()
 
 					
@@ -180,16 +188,7 @@ class USB_ports:
 			print "-------------------"
 
 
-
-	# Show all devices (connected + known_devices)	
-	def show_new_devices(self):		
-		for dev in self.new_devices:
-			print "ID: " + dev
-			self.information_print(["Product", "Vendor"], self.connected_devices[dev])
-			print "-------------------"
-
-
-	def write_device(self, device):
+	def write_devices(self, device):
 		all_devices = self.known_devices
 		
 		with open('known_devices', 'wt') as f_out:
