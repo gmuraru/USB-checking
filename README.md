@@ -42,7 +42,9 @@ You can call this file how you would like, but must have the folllowing content:
 
 '''
 [D-BUS Service]
+
 Name=org.me.usb
+
 Exec=*Location_of_dbus_script/usb_dbus.py*
 '''
 
@@ -57,4 +59,4 @@ connect to your PC.
 Still working on improvements regarding the interface.
 
 ## Requiremets
-* pyudev -> ```pip install pyudev```
+* pyudev --> ```pip install pyudev```
