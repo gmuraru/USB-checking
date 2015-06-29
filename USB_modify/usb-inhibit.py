@@ -1,8 +1,7 @@
 #! /usr/bin/python3
 
-import usb_on
-import usb_off
-import glob
+from USB_DBus import usb_on
+from USB_DBus import usb_off
 import sys
 import subprocess
 import pyudev
@@ -25,7 +24,7 @@ def usage():
 			"\n\t Method1: ./usb-inhibit.py -- process_with_arguments"
 	        "\n\t Method2: python usb-inhibi.py -- process_with_arguments"
 			"\nOptions:"
-			"\n\t -u -- unseen, after the program finishes running leave"
+			"\n\t -u -- unseen, after the program finishes running leave "
 			"the USB devices drivers (that were connected during"
 			"\n\t\tthe program execution) unloaded")
 
@@ -46,6 +45,7 @@ def start_process(process_with_args):
 
 	try:
 		pid = subprocess.Popen(process_with_args)
+
 	except OSError:
 		pid = None
 
@@ -76,8 +76,7 @@ def inhibit_USB(pid):
 		if action == 'remove' and dev in not_connected:
 			not_connected.remove(dev)
 
-if __name__ == "__main__":
-
+def main():
 	process_with_args = sys.argv[2:]
 	
 	if not process_with_args:
@@ -96,9 +95,13 @@ if __name__ == "__main__":
 			try:
 				inhibit_USB(pid)
 				rebind_devices()
+
 			except IOError:
 				print ("You do not have enough permissions to create the file")
+		
 			except KeyboardInterrupt:
 				rebind_devices()
 
 
+if __name__ == "__main__":
+	main()
