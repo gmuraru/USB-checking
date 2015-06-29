@@ -5,13 +5,11 @@ Check if a connected devices was already seen by the computer.
 If the device was not seen, it will ask for your permission to add it
 to a trusted file (*known_host* in our case)
 
-###How to run!
-
-####For the command line
+###For the command line
 
 ```python usb_checking.py```
 
-####For the Gtk+ interface
+###For the Gtk+ interface
 
 ```python usb_listing.py```
 
@@ -22,7 +20,7 @@ to a trusted file (*known_host* in our case)
 
 ---
 ## USB_modify folder
-### USB_DBus
+### USB_DBus folder
 
 USB turn on
 
@@ -57,3 +55,6 @@ While the *application_name* is running let no USB devices
 connect to your PC.
 
 Still working on improvements regarding the interface.
+
+## Requiremets
+* pyudev -> ```pip install pyudev```
