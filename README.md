@@ -45,7 +45,7 @@ You can call this file how you would like, but must have the folllowing content:
 
 Name=org.me.usb
 
-Exec=*Location_of_dbus_script/usb_dbus.py*
+Exec=Location_of_dbus_script/usb_dbus.py
 ```
 
 
