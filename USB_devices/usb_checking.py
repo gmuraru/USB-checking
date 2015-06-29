@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 
 import os.path
 import json
@@ -46,6 +46,10 @@ class USB_ports:
 
 
 	def __init__(self):
+
+		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
+			f_out.write("0")
+
 		self.get_known_devices()
 		self.get_connected_devices()
 
@@ -58,9 +62,9 @@ class USB_ports:
 														DEVTYPE='usb_device'):
 
 			bus_id = device.sys_name.split(':')[0]
-			if	len(bus_id.split('.')) > 1 and \
-									device.find_parent(subsystem='usb',
+			if	device.find_parent(subsystem='usb', 
 											device_type='usb_device') != None:
+				print bus_id
 
 				(dev_name, key) = self.extract_information(device)
 				
@@ -207,9 +211,6 @@ class USB_ports:
 	# Waiting state and notification if a `new usb` has been connected
 	def usb_monitor_start(self):
 
-		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
-			f_out.write("0")
-
 		self.monitor.start()
 
 		for action, device in self.monitor:
@@ -240,11 +241,15 @@ class USB_ports:
 		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 			f_out.write("1")
 
+def main():
+	try:
+		usb_guard = USB_ports()
+	
+	except IOError:
+		print ("You do not have enough permissions to create the file")
+		return 1
 
-if __name__ == "__main__":
-	
-	usb_guard = USB_ports()
-	
+
 	# Monitor will continuously check the usb to see if any new device is
 	# connected. If a new device is connected it will ask if you want or not
 	# to be added to a known_host file (this devices can be trusted). If you as
@@ -254,6 +259,9 @@ if __name__ == "__main__":
 
 	try:
 		usb_guard.usb_monitor_start()
-
+	
 	except KeyboardInterrupt:
 		usb_guard.usb_monitor_stop()
+
+if __name__ == "__main__":
+	main()
