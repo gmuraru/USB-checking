@@ -63,13 +63,11 @@ class USB_ports:
 
 
 	def get_connected_devices(self):
-		devices_info = {}
-		
 
 		for device in self.context.list_devices(subsystem='usb',
 														DEVTYPE='usb_device'):
 
-			bus_id = device.sys_name.split(':')[0]
+			bus_id = device.sys_name
 
 			if	device.find_parent(subsystem='usb', 
 											device_type='usb_device') != None:
@@ -82,6 +80,7 @@ class USB_ports:
 				if self.running_mode == RunningMode.CLI:
 					if key not in self.known_devices.keys():
 						self.ask_user(dev_name, key, bus_id)
+
 	
 	def get_busID(self):
 		return busID_key_map
