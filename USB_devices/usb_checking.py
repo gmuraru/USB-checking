@@ -179,7 +179,7 @@ class USB_ports:
 
 		input = raw_input("Do you want to add it to the known devices list? (Y/N): ")
 
-		while input != "Y" and input != "N":
+		while input.upper() != "Y"  and input.upper() != "N":
 			input = raw_input("Please write Y or N:")
 
 		# If the answer is Y than we can trust that device
@@ -196,10 +196,13 @@ class USB_ports:
 			with open('known_devices', 'rt') as f_in:
 
 				try:
-					self.known_devices = json.load(f_in)
+					self.known_devices = json.loads(f_in)
 				
 				except ValueError:
 					self.known_devices = {}	
+				
+				except TypeError:
+					self.known_devices = {}
 
 	# Printing informations about the device
 	def information_print(self, dev_name, dev_information):
