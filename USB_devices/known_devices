@@ -1,18 +1,14 @@
 {
-    "1::::0000:0024:8087::01:00:09:::": {
-        "Product": "Integrated Rate Matching Hub", 
-        "Vendor": "Intel Corp."
-    }, 
     "1::::0100:1641:0951::00:00:00:::": {
-        "Product": "DataTraveler C10", 
-        "Vendor": "Kingston Technology"
+        "Product": "Kingston Technology", 
+        "Vendor": "1::::0100:1641:0951::00:00:00:::"
     }, 
     "1::::0009:2c18:1bcf::01:02:ef:::": {
-        "Product": "HD WebCam", 
-        "Vendor": "Sunplus Innovation Technology Inc."
+        "Product": "Sunplus Innovation Technology Inc.", 
+        "Vendor": "1::::0009:2c18:1bcf::01:02:ef:::"
     }, 
     "1::::010b:6387:058f::00:00:00:::": {
-        "Product": "Flash Drive", 
-        "Vendor": "Alcor Micro Corp."
+        "Product": "Alcor Micro Corp.", 
+        "Vendor": "1::::010b:6387:058f::00:00:00:::"
     }
 }

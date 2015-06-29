@@ -1,16 +1,22 @@
 #! /usr/bin/env python3
 
-import os.path
 import json
+import os
 from pyudev import Context, Monitor
 import re
 
+# Defining the 2 running modes
+class RunningMode:
+	CLI = 1
+	GTK = 2
+
+
 class USB_ports:	
-	
+
 	# Start with no device
 	connected_devices = {}
 	known_devices = {}
-	budID_key_map = {}
+	busID_key_map = {}
 	
 	# Pyudev monitor
 	context = Context()
@@ -45,13 +51,15 @@ class USB_ports:
 
 
 
-	def __init__(self):
+	def __init__(self, running_mode):
 
 		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 			f_out.write("0")
 
+		self.running_mode = running_mode
 		self.get_known_devices()
 		self.get_connected_devices()
+
 
 
 	def get_connected_devices(self):
@@ -62,6 +70,7 @@ class USB_ports:
 														DEVTYPE='usb_device'):
 
 			bus_id = device.sys_name.split(':')[0]
+
 			if	device.find_parent(subsystem='usb', 
 											device_type='usb_device') != None:
 				print bus_id
@@ -70,8 +79,12 @@ class USB_ports:
 				
 				self.add_connected_device(key, dev_name, bus_id)
 
-				if key not in self.known_devices.keys():
-					self.ask_user(dev_name, key, bus_id)
+				if self.running_mode == RunningMode.CLI:
+					if key not in self.known_devices.keys():
+						self.ask_user(dev_name, key, bus_id)
+	
+	def get_busID(self):
+		return busID_key_map
 
 
 	def extract_information(self, device):
@@ -179,15 +192,15 @@ class USB_ports:
 					
 
 	def get_known_devices(self):
-		if not os.path.isfile('known_devices'):
-			return
-		
-		with open('known_devices', 'rt') as f_in:
-			try:
-				self.known_devices = json.load(f_in)
-			
-			except ValueError:
-				self.known_devices = {}	
+		if os.path.isfile('known_devices'):
+
+			with open('known_devices', 'rt') as f_in:
+
+				try:
+					self.known_devices = json.load(f_in)
+				
+				except ValueError:
+					self.known_devices = {}	
 
 	# Printing informations about the device
 	def information_print(self, dev_name, dev_information):
@@ -205,7 +218,15 @@ class USB_ports:
 
 	def add_connected_device(self, key, dev_name, bus_id):
 		self.connected_devices[key] = dev_name
-		self.budID_key_map[bus_id] = key
+		self.busID_key_map[bus_id] = key
+
+	def remove_connected_device(self, bus_id):
+		key = self.busID_key_map.pop(bus_id)
+		self.connected_devices.pop(key)
+		return key
+
+	def add_to_known_device(self, key, dev_name):
+		self.known_devices[key] = dev_name
 
 
 	# Waiting state and notification if a `new usb` has been connected
@@ -225,14 +246,11 @@ class USB_ports:
 					self.ask_user(dev_name, key, dev)
 
 			if action == 'remove':
-				key = self.budID_key_map[dev]
-				self.connected_devices.pop(key)
-				print ('The device with the key %s was unplugged' %(key))
+				self.remove_connected_device(dev)
 		
 
 	def usb_monitor_stop(self):
 		self.reload_on()
-		print self.known_devices
 		with open('known_devices', 'wt') as f_out:
 			json.dump(self.known_devices, f_out, indent = 4)
 			
@@ -243,7 +261,7 @@ class USB_ports:
 
 def main():
 	try:
-		usb_guard = USB_ports()
+		usb_guard = USB_ports(RunningMode.CLI)
 	
 	except IOError:
 		print ("You do not have enough permissions to create the file")
