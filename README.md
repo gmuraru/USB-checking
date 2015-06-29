@@ -17,17 +17,37 @@ to a trusted file (*known_host* in our case)
 
 
 ###Updates
-* Add pyudev library to check for new added devices
+* Add pyudev library to check for new added devices (no more expensive loop)
+* Add more device descriptors
 
 ---
 ## USB_modify folder
+### USB_DBus
+
 USB turn on
 
 ```python usb_on.py bus_id (bus_id the given parameter)```
 
-USB turn off
+**USB turn off**
 
 ```python usb_off.py bus_id (bus_id the given parameter)```
+
+**USB DBus**
+
+Firstly, the ```usb_dbus.py``` must be run with sudo privileges to have the
+right to write the ```auto_probe``` file.
+
+Before using the dbus service there must first exist a service file
+in the ```/usr/share/dbus-1/services/``` directory.
+
+You can call this file how you would like, but must have the folllowing content:
+
+'''
+[D-BUS Service]
+Name=org.me.usb
+Exec=*Location_of_dbus_script/usb_dbus.py*
+'''
+
 
 USB-inhibit
 
