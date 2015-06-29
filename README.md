@@ -40,13 +40,13 @@ in the ```/usr/share/dbus-1/services/``` directory.
 
 You can call this file how you would like, but must have the folllowing content:
 
-'''
+```
 [D-BUS Service]
 
 Name=org.me.usb
 
 Exec=*Location_of_dbus_script/usb_dbus.py*
-'''
+```
 
 
 USB-inhibit
