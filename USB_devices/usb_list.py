@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
 
 import threading
 from gi.repository import Gtk, GObject, GLib
@@ -58,7 +58,7 @@ class USB_ViewFilterWindow(Gtk.Window):
         button = Gtk.Button("Write selected")
         self.buttons.append(button)
         button.connect("clicked", self.write_to_known_devices)
-        
+
         self.grid.attach_next_to(self.buttons[0], self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
         for i, button in enumerate(self.buttons[1:]):
             self.grid.attach_next_to(button, self.buttons[i], Gtk.PositionType.RIGHT, 1, 1)
@@ -75,7 +75,7 @@ class USB_ViewFilterWindow(Gtk.Window):
     def first_populate_table(self):
         self.device_monitor.get_known_devices()
         self.device_monitor.get_connected_devices()
-
+        print self.device_monitor.known_devices
         for device in self.device_monitor.known_devices.keys():
 
             if device in self.device_monitor.connected_devices.keys():
@@ -84,7 +84,7 @@ class USB_ViewFilterWindow(Gtk.Window):
                             self.device_monitor.known_devices[device]['Product']])
 
             else:
-                self.usb_list.appned([True, False, device,
+                self.usb_list.append([True, False, device,
 							self.device_monitor.known_devices[device]['Vendor'],
 							self.device_monitor.known_devices[device]['Product']])
 				
@@ -138,7 +138,8 @@ class USB_ViewFilterWindow(Gtk.Window):
             index = (model.get_path(treeiter)).get_indices()[0]
        	
         action = device.action
-        dev = device.sys_name.split(':')[0]
+        dev = device.sys_name
+        print dev
         (dev_name, key) = self.device_monitor.extract_information(device)
 
         if action == 'add':

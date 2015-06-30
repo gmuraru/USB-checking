@@ -20,9 +20,9 @@ class USB_ports:
 	
 	# Pyudev monitor
 	context = Context()
-	monitor = Monitor.from_netlink(context)
 
-	monitor.filter_by(subsystem='usb')
+	monitor = Monitor.from_netlink(context)
+	monitor.filter_by(subsystem='usb', device_type='usb_device')
 
 	# Separator for key
 	separator = ':'
@@ -64,6 +64,7 @@ class USB_ports:
 
 	def get_connected_devices(self):
 
+		print ("Connected-devices that are new")
 		for device in self.context.list_devices(subsystem='usb',
 														DEVTYPE='usb_device'):
 
@@ -71,8 +72,6 @@ class USB_ports:
 
 			if	device.find_parent(subsystem='usb', 
 											device_type='usb_device') != None:
-				print bus_id
-
 				(dev_name, key) = self.extract_information(device)
 				
 				self.add_connected_device(key, dev_name, bus_id)
@@ -82,10 +81,6 @@ class USB_ports:
 						self.ask_user(dev_name, key, bus_id)
 
 	
-	def get_busID(self):
-		return busID_key_map
-
-
 	def extract_information(self, device):
 		information = {}
 		key = ""
@@ -111,8 +106,6 @@ class USB_ports:
 
 		# The break occured and we can not get a piece of information
 		# about the usb device
-		#if len(key.split(":")) <= 0.3 * len(self.looked_information):
-		#	continue
 
 		dev_name = self.get_device_name(attributes)
 		return (dev_name, key)
@@ -196,7 +189,7 @@ class USB_ports:
 			with open('known_devices', 'rt') as f_in:
 
 				try:
-					self.known_devices = json.loads(f_in)
+					self.known_devices = json.load(f_in)
 				
 				except ValueError:
 					self.known_devices = {}	
@@ -237,16 +230,19 @@ class USB_ports:
 		self.monitor.start()
 
 		for action, device in self.monitor:
-			dev = device.sys_name.split(':')[0]
-			(dev_name, key) = self.extract_information(device)
+			dev = device.sys_name
 			
+			print dev
 
+			# Device has been added
 			if action == 'add':
+				(dev_name, key) = self.extract_information(device)
 				self.add_connected_device(key, dev_name, dev)
 
 				if key not in self.known_devices.keys():
 					self.ask_user(dev_name, key, dev)
 
+			# Device has been removed
 			if action == 'remove':
 				self.remove_connected_device(dev)
 		
