@@ -7,8 +7,13 @@ import sys
 import os
 import re
 import subprocess
-from pyudev import Context, Monitor, MonitorObserver
 
+try:
+	from pyudev import Context, Monitor, MonitorObserver
+except ImportError: 
+	sys.exit("Check if you have installed the module pyudev:\n \
+			Installation: pip install pyudev")
+	
 
 # USB-inhibit runs in 2 mods:
 # * If it runs and someone connects a USB device then his driver would not be
@@ -50,6 +55,9 @@ class USB_inhibit:
 
 	# Class initializer
 	def __init__(self, flag_known_devices):
+		self.observer = MonitorObserver(self.monitor, callback = self.start_monitor,
+				                                      name='monitor-observer') 
+
 
 		# Devices that where connected when the usb_inhibit started
 		# -- used for the option when the known_devices flag is False
@@ -193,7 +201,9 @@ class USB_inhibit:
 
 	# Stop the usb-inhibit program
 	def stop(self):
+		print ("Exiting...")
 		self.rebind_devices()
+		self.observer.stop()
 
 
 	# Extract information from a device
@@ -205,7 +215,7 @@ class USB_inhibit:
 
 		for info in self.looked_information:
 			if info in attributes:
-				key += attributes.get(info)
+				key += str(attributes.get(info))
 
 			if info == "idProduct":
 				dev_idProduct = attributes.get(info)
@@ -253,24 +263,32 @@ class USB_inhibit:
 		regex_idVendor = re.compile('^%s  .*' %(idVendor))
 		regex_idProduct = re.compile('\t%s  .*' %(idProduct))
 
+		try:	
+			f_in = open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
+					errors='ignore')
 
-		with open("/var/lib/usbutils/usb.ids") as f_in:
-			for line_vendor in f_in:
-				res = regex_idVendor.match(line_vendor)
+		except TypeError:
+			import codecs
+			f_in = codecs.open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
+					errors='ignore')
+				
+		
+		for line_vendor in f_in:
+			res = regex_idVendor.match(line_vendor)
 
-				if res:
-					if 'Vendor' not in prod_vendor.keys():
-						prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
+			if res:
+				if 'Vendor' not in prod_vendor.keys():
+					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
 
-					for line_product in f_in:
-						res = regex_idProduct.match(line_product)
+				for line_product in f_in:
+					res = regex_idProduct.match(line_product)
 
-						if res:
-							if 'Product' not in prod_vendor.keys():
+					if res:
+						if 'Product' not in prod_vendor.keys():
 
-								prod_vendor["Product"] = (res.group(0)).split("  ")[1]
+							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
 							
-							return prod_vendor
+						return prod_vendor
 			
 		return prod_vendor
 
@@ -278,13 +296,11 @@ class USB_inhibit:
 	def start(self):
 
 		print ("Start monitoring!")
+
 		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 			f_out.write("0")
 		
-		self.observer = MonitorObserver(self.monitor, callback = self.start_monitor,
-				                                      name='monitor-observer') 
-
-		
+			
 		if not self.running_mode_cont:	
 			proc = self.start_process()
 			print ("Runs with a given command mode")
@@ -292,17 +308,12 @@ class USB_inhibit:
 			self.observer.start()
 			while proc.poll() is None:
 				continue
-
-			self.stop()
 		
 		# For continuous mode must be called manually the stop command
 		else:
 			self.observer.daemon = False
-
 			self.observer.start()
-
 			print ("Runs in continuous mode")
-
 
 	def start_monitor(self, device):
 
@@ -339,7 +350,11 @@ def main():
 		usb_inhibit.start()
 
 	except KeyboardInterrupt:
+		print ("\nYou killed me with CTRL+C")
 		usb_inhibit.stop()
+	
+	except IOError:
+		print ("You must run the script with higher priorities!")
 
 if __name__ == "__main__":
 	main()
