@@ -253,15 +253,18 @@ class USB_inhibit:
 		if vendorFound and productFound:
 			return prod_vendor
 
+		print (str(productFound) + "  " + str(vendorFound))
 
-		idVendor = attributes.get("idVendor")
-		idProduct = attributes.get("idProduct")
+		idVendor = attributes.get("idVendor").decode('utf-8')
+		idProduct = attributes.get("idProduct").decode('utf-8')
+		print (type(idProduct))
+
 
 		if idProduct == None or idVendor == None:
 			return prod_vendor
 
-		regex_idVendor = re.compile('^%s  .*' %(idVendor))
-		regex_idProduct = re.compile('\t%s  .*' %(idProduct))
+		regex_idVendor = re.compile('^{}  .*'.format(idVendor))
+		regex_idProduct = re.compile('\t{}  .*'.format(idProduct))
 
 		try:	
 			f_in = open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
@@ -275,10 +278,11 @@ class USB_inhibit:
 		
 		for line_vendor in f_in:
 			res = regex_idVendor.match(line_vendor)
-
+			
 			if res:
 				if 'Vendor' not in prod_vendor.keys():
 					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
+					print (prod_vendor["Vendor"])
 
 				for line_product in f_in:
 					res = regex_idProduct.match(line_product)
@@ -287,6 +291,7 @@ class USB_inhibit:
 						if 'Product' not in prod_vendor.keys():
 
 							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
+							print (prod_vendor['Product'])
 							
 						return prod_vendor
 			
