@@ -11,8 +11,8 @@ import subprocess
 try:
 	from pyudev import Context, Monitor, MonitorObserver
 except ImportError: 
-	sys.exit("Check if you have installed the module pyudev:\n \
-			Installation: pip install pyudev")
+	sys.exit("Check if you have installed the module pyudev:\n "\
+			"Installation: pip install pyudev")
 	
 
 # USB-inhibit runs in 2 mods:
@@ -121,14 +121,14 @@ class USB_inhibit:
 
 	# The proper way to use the usb-inhibit
 	def usage(self):
-		print ("Bad program call"
-				"\nCall:"
-				"\n\t Method1: ./usb-inhibit.py -- process_with_arguments"
-				"\n\t Method2: python usb-inhibi.py -- process_with_arguments"
-				"\nOptions:"
-				"\n\t -u -- unseen, after the program finishes running leave "
-				"the USB devices drivers (that were connected during"
-				"\n\t\tthe program execution) unloaded")
+		print ("Bad program call\n"
+				"Call:\n"
+				"\t Method1: ./usb-inhibit.py -- process_with_arguments\n"
+				"\t Method2: python usb-inhibi.py -- process_with_arguments\n"
+				"Options:\n"
+				"\t -u -- unseen, after the program finishes running leave "
+				"the USB devices drivers (that were connected during\n"
+				"\t\tthe program execution) unloaded")
 
 
 	# Look for already connected devices and take their bus_id
@@ -270,12 +270,12 @@ class USB_inhibit:
 
 		try:	
 			f_in = open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
-					errors='ignore')
+					errors='replace')
 
 		except TypeError:
 			import codecs
 			f_in = codecs.open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
-					errors='ignore')
+					errors='replace')
 				
 		
 		for line_vendor in f_in:
