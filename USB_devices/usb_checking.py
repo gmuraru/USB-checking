@@ -198,11 +198,39 @@ class USB_ports:
 		print("Bus_ID: " + bus_id) 
 	
 		self.information_print(dev_name, key)
+		
+		question = "Do you want to add it to the known devices list? (Y/N): "
+		user_input = None
 
-		user_input = input("Do you want to add it to the known devices list? (Y/N): ")
+		try:
+			if sys.version_info >= (3, 0):	
+				user_input = input(question)
+			else:
+				user_input = raw_input(question)
 
-		while user_input.upper() not in ["Y", "N"]:
-			user_input = input("Please write Y or N:")
+		except EOFError:
+			print("\n")
+
+		except KeyboardInterrupt:
+			print("\nRebinding the devices...")
+			self.usb_monitor_stop()
+
+		while not user_input or user_input.upper() not in ["Y", "N"]:
+			try:
+				if sys.version_info >= (3,0):
+					user_input = input("Please write Y or N: ")
+				else:
+					user_input = raw_input("Please write Y or N: ")
+
+			except EOFError:
+				pass
+
+			except KeyboardInterrupt:
+				print("\nRebinding the devices...")
+				self.usb_monitor_stop()
+
+
+			
 
 		# If the answer is Y than we can trust that device
 		if user_input.upper() == 'Y':
@@ -264,7 +292,7 @@ class USB_ports:
 		self.monitor.start()
 
 		for action, device in self.monitor:
-			dev = str(device.sys_name)
+			dev = device.sys_name
 			
 			# Device has been added
 			if action == 'add':
@@ -287,6 +315,8 @@ class USB_ports:
 		self.reload_on()
 		with open('known_devices', 'wt') as f_out:
 			json.dump(self.known_devices, f_out, indent = 4)
+
+		sys.exit(0)
 			
 
 	def reload_on(self):
@@ -307,6 +337,7 @@ def main():
 		usb_guard.usb_monitor_start()
 	
 	except KeyboardInterrupt:
+		print ("\nYou pressed CTRL+C! Rebinding the devices...")
 		usb_guard.usb_monitor_stop()
 
 if __name__ == "__main__":
