@@ -140,7 +140,7 @@ class USB_inhibit:
 			bus_id = device.sys_name		                                    
 		                                                                        
 			if  device.find_parent(subsystem='usb',
-								device_type='usb_device') != None:  
+										device_type='usb_device') != None:  
 				print(bus_id)
 		                                                                        
 				(dev_name, key) = self.extract_information(device)              
@@ -161,8 +161,9 @@ class USB_inhibit:
 		return key                                                              
                                                                                 
 
-	# Get the known devices
+	# Form the known devices dictionary
 	def get_known_devices(self):
+
 		if os.path.isfile('../USB_devices/known_devices'):	                                                           
 			with open('../USB_devices/known_devices', 'rt') as f_in:
 				try:	                                                                                  
@@ -236,10 +237,11 @@ class USB_inhibit:
 
 	# Look for device name using the attributes
 	def get_device_name(self, attributes):
+
 		# Device product and vendor
 		prod_vendor = {	
-				"Vendor": "",
-				"Product": ""}
+						"Vendor": "",
+						"Product": ""}
 	
 		vendorFound = False
 		productFound = False
@@ -282,7 +284,7 @@ class USB_inhibit:
 			res = regex_idVendor.match(line_vendor)
 			
 			if res:
-				if 'Vendor' not in prod_vendor.keys():
+				if "Vendor" not in prod_vendor.keys():
 					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
 					print (prod_vendor["Vendor"])
 
@@ -290,15 +292,16 @@ class USB_inhibit:
 					res = regex_idProduct.match(line_product)
 
 					if res:
-						if 'Product' not in prod_vendor.keys():
+						if "Product" not in prod_vendor.keys():
 
 							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
-							print (prod_vendor['Product'])
+							print (prod_vendor["Product"])
 							
 						return prod_vendor
 		f_in.close()
 
 		return prod_vendor
+
 
 	# Start the usb-inhibit program 
 	def start(self):
@@ -323,10 +326,13 @@ class USB_inhibit:
 			self.observer.start()
 			print ("Runs in continuous mode")
 
+
+	# Start monitoring
 	def start_monitor(self, device):
 
 		dev = device.sys_name
 		action = device.action                                                                           
+
 		# If a new device is added:
 		# * add it to the connected device dict
 		# * check if the flag for known_devices is on and the devic
@@ -336,7 +342,7 @@ class USB_inhibit:
 			self.add_connected_device(key, dev_name, dev)
 
 			print ("Device added!")
-			print ("Device name %s, bus_id %s and key %s" %(dev_name, dev, key))
+			print ("Device name {}, bus_id %s and key {}".format(dev_name, dev, key))
 			if self.flag_known_devices and key in self.known_devices.keys():
 				print ("Device in known list!")
 				usb_on.usb_enable(dev)
@@ -347,11 +353,12 @@ class USB_inhibit:
 		# connected device dict
 		if action == 'remove':
 			print ("Device removed!")
-			print ("Device bus_id %s" %dev)
+			print ("Device bus_id {}".format(dev))
 			if dev in self.busID_key_map:
 				self.remove_connected_device(dev)
 	
 def main():
+
 	usb_inhibit = USB_inhibit(True)
 
 	try:
@@ -362,7 +369,7 @@ def main():
 		usb_inhibit.stop()
 	
 	except IOError:
-		print ("You must run the script with higher priorities!")
+		print ("You do not have enough permissions!")
 
 if __name__ == "__main__":
 	main()

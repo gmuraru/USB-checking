@@ -1,1 +1,6 @@
-{}
+{
+    "1::::0000:0024:8087::01:00:09:::": {
+        "Vendor": "Intel Corp.",
+        "Product": "Integrated Rate Matching Hub"
+    }
+}
