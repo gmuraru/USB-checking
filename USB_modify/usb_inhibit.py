@@ -134,13 +134,13 @@ class USB_inhibit:
 	# Look for already connected devices and take their bus_id
 	def form_initial_devices(self):
 
-		for device in self.context.list_devices(subsystem='usb',		        
-		                                                DEVTYPE='usb_device'):  
+		for device in self.context.list_devices(subsystem='usb',
+														DEVTYPE='usb_device'):  
 		                                                                        
 			bus_id = device.sys_name		                                    
 		                                                                        
-			if  device.find_parent(subsystem='usb',                             
-		                                    device_type='usb_device') != None:  
+			if  device.find_parent(subsystem='usb',
+											device_type='usb_device') != None:  
 				print (bus_id)
 		                                                                        
 				(dev_name, key) = self.extract_information(device)              
