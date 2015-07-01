@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import json
+import sys
 import os
 from pyudev import Context, Monitor
 import re
@@ -52,9 +53,13 @@ class USB_ports:
 
 
 	def __init__(self, running_mode):
+		try:
+			with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
+				f_out.write("0")
 
-		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
-			f_out.write("0")
+		except IOError:
+			print("You do not have enough permission!")
+			sys.exit(1)
 
 		self.running_mode = running_mode
 		self.get_known_devices()
@@ -64,14 +69,19 @@ class USB_ports:
 
 	def get_connected_devices(self):
 
-		print ("Connected-devices that are new")
+		print("Connected-devices that are new")
 		for device in self.context.list_devices(subsystem='usb',
 														DEVTYPE='usb_device'):
 
 			bus_id = device.sys_name
-
+			
+			
 			if	device.find_parent(subsystem='usb', 
 											device_type='usb_device') != None:
+
+				print(bus_id)
+				print("-------------------------------------------")
+
 				(dev_name, key) = self.extract_information(device)
 				
 				self.add_connected_device(key, dev_name, bus_id)
@@ -88,14 +98,15 @@ class USB_ports:
 		attributes = device.attributes
 
 		for info in self.looked_information:
+
 			if info in attributes:
-				key += attributes.get(info)
+				key += attributes.get(info).decode('utf-8')
 
 			if info == "idProduct":
-				dev_idProduct = attributes.get(info)
+				dev_idProduct = attributes.get(info).decode('utf-8')
 
 			elif info == "idVendor":
-				dev_idVendor = attributes.get(info)
+				dev_idVendor = attributes.get(info).decode('utf-8')
 
 			key += self.separator
 
@@ -107,57 +118,75 @@ class USB_ports:
 		# The break occured and we can not get a piece of information
 		# about the usb device
 
+		#print("This is the key {}".format(key))
+		
 		dev_name = self.get_device_name(attributes)
 		return (dev_name, key)
 
 
 	def get_device_name(self, attributes):
 		# Device product and vendor
-		prod_vendor = {}
+		prod_vendor = { "Vendor": "",
+						"Product": ""}
 	
 		vendorFound = False
 		productFound = False
 
+		# Check if Product and Vendor are in the device attributes
 		if self.looked_vendor_product[0] in attributes:
-			prod_vendor["Product"] = attributes.get('product')
+			prod_vendor["Product"] = attributes.get('product').decode('ascii')
 			productFound = True
 			
 		if self.looked_vendor_product[1] in attributes:
-			prod_vendor['Vendor'] = attributes.get('vendor')
+			prod_vendor['Vendor'] = attributes.get('vendor').decode('ascii')
 			vendorFound = True
 	
 		if vendorFound and productFound:
 			return prod_vendor
 
 
-		idVendor = attributes.get("idVendor")
-		idProduct = attributes.get("idProduct")
+		idVendor = attributes.get("idVendor").decode('ascii')
+		idProduct = attributes.get("idProduct").decode("ascii")
+
 
 		if idProduct == None or idVendor == None:
 			return prod_vendor
 
-		regex_idVendor = re.compile('^%s  .*' %(idVendor))
-		regex_idProduct = re.compile('\t%s  .*' %(idProduct))
+		# If they are not in the attributes check a file (lsusb uses this file
+		# for naming connected devices)
+		regex_idVendor = re.compile('^{}  .*'.format(idVendor))
+		regex_idProduct = re.compile('\t{}  .*'.format(idProduct))
+
+		# The file has the format utf-8
+		try:	
+			f_in = open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
+					errors='replace')
+
+		except TypeError:
+			import codecs
+			f_in = codecs.open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
+					errors='replace')
 
 
-		with open("/var/lib/usbutils/usb.ids") as f_in:
-			for line_vendor in f_in:
-				res = regex_idVendor.match(line_vendor)
+		for line_vendor in f_in:
+			res = regex_idVendor.match(line_vendor)
 
-				if res:
-					if 'Vendor' not in prod_vendor.keys():
-						prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
+			if res:
+				if not prod_vendor["Vendor"]:
+					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
 
-					for line_product in f_in:
-						res = regex_idProduct.match(line_product)
+				for line_product in f_in:
+					res = regex_idProduct.match(line_product)
 
-						if res:
-							if 'Product' not in prod_vendor.keys():
+					if res:
+						if not prod_vendor["Product"]:
 
-								prod_vendor["Product"] = (res.group(0)).split("  ")[1]
-							
-							return prod_vendor
-			
+							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
+						
+						return prod_vendor
+		
+		f_in.close()
+
 		return prod_vendor
 	
 
@@ -165,21 +194,26 @@ class USB_ports:
 	# The bus_id may change for a device if it is connected on a different port
 	def ask_user(self, dev_name, key, bus_id):
 
-		print ("A new device attached")
-		print ("Bus_ID: " + bus_id) 
+		print("A new device attached")
+		print("Bus_ID: " + bus_id) 
 	
 		self.information_print(dev_name, key)
 
-		input = raw_input("Do you want to add it to the known devices list? (Y/N): ")
+		user_input = input("Do you want to add it to the known devices list? (Y/N): ")
 
-		while input.upper() != "Y"  and input.upper() != "N":
-			input = raw_input("Please write Y or N:")
+		while user_input.upper() not in ["Y", "N"]:
+			user_input = input("Please write Y or N:")
 
 		# If the answer is Y than we can trust that device
-		if input.upper() == 'Y':
-			print ("Added")
+		if user_input.upper() == 'Y':
+			print("Added")
 			self.known_devices[key] = dev_name
-			print self.known_devices
+			
+			print("The new `known_device list is` {}".format(self.known_devices))
+
+		else:
+			print("The device was not added")
+			
 	
 					
 
@@ -196,19 +230,19 @@ class USB_ports:
 				
 				except TypeError:
 					self.known_devices = {}
+		print("Known devices {}".format(self.known_devices))
 
 	# Printing informations about the device
 	def information_print(self, dev_name, dev_information):
-		
-		print ("Vendor: %s" %dev_name["Vendor"])
-		print ("Product: %s" %dev_name["Product"])
+		print("Vendor: {}".format(dev_name["Vendor"])) 
+		print("Product: {}".format(dev_name["Product"]))
 		dev_info_split = dev_information.split(self.separator)
 
 		for info_index in range(len(self.looked_information)):
-			print (self.looked_information[info_index] + ": " 
-												+ dev_info_split[info_index])
+			print("{}:{}".format(self.looked_information[info_index],
+								dev_info_split[info_index]))
 		
-		print ("-----------------------------------\n")
+		print("-----------------------------------\n")
 
 
 	def add_connected_device(self, key, dev_name, bus_id):
@@ -230,20 +264,22 @@ class USB_ports:
 		self.monitor.start()
 
 		for action, device in self.monitor:
-			dev = device.sys_name
+			dev = str(device.sys_name)
 			
-			print dev
-
 			# Device has been added
 			if action == 'add':
+				print("A device has been added bus_id {}".format(dev))
 				(dev_name, key) = self.extract_information(device)
 				self.add_connected_device(key, dev_name, dev)
 
 				if key not in self.known_devices.keys():
 					self.ask_user(dev_name, key, dev)
+				else:
+					print("It is a trusted device")
 
 			# Device has been removed
 			if action == 'remove':
+				print("A device has been removed from the bus_id {}".format(dev))
 				self.remove_connected_device(dev)
 		
 
@@ -258,14 +294,8 @@ class USB_ports:
 			f_out.write("1")
 
 def main():
-	try:
-		usb_guard = USB_ports(RunningMode.CLI)
+	usb_guard = USB_ports(RunningMode.CLI)
 	
-	except IOError:
-		print ("You do not have enough permissions to create the file")
-		return 1
-
-
 	# Monitor will continuously check the usb to see if any new device is
 	# connected. If a new device is connected it will ask if you want or not
 	# to be added to a known_host file (this devices can be trusted). If you as

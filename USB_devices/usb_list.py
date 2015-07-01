@@ -60,6 +60,7 @@ class USB_ViewFilterWindow(Gtk.Window):
         button.connect("clicked", self.write_to_known_devices)
 
         self.grid.attach_next_to(self.buttons[0], self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
+
         for i, button in enumerate(self.buttons[1:]):
             self.grid.attach_next_to(button, self.buttons[i], Gtk.PositionType.RIGHT, 1, 1)
         
@@ -69,52 +70,50 @@ class USB_ViewFilterWindow(Gtk.Window):
         self.first_populate_table()
         self.show_all()	
         self.observer.start()
-	   # GObject.timeout_add(200, self.refresh)	
 
 
     def first_populate_table(self):
-        self.device_monitor.get_known_devices()
-        self.device_monitor.get_connected_devices()
-        print self.device_monitor.known_devices
+
         for device in self.device_monitor.known_devices.keys():
 
             if device in self.device_monitor.connected_devices.keys():
                 self.usb_list.append([True, True, device,
-                            self.device_monitor.known_devices[device]['Vendor'],
-                            self.device_monitor.known_devices[device]['Product']])
+                            self.device_monitor.known_devices[device]["Vendor"],
+                            self.device_monitor.known_devices[device]["Product"]])
 
             else:
                 self.usb_list.append([True, False, device,
-							self.device_monitor.known_devices[device]['Vendor'],
-							self.device_monitor.known_devices[device]['Product']])
+							self.device_monitor.known_devices[device]["Vendor"],
+							self.device_monitor.known_devices[device]["Product"]])
 				
 
         for device in self.device_monitor.connected_devices.keys():
 			
             if device not in self.device_monitor.known_devices.keys():
                 self.usb_list.append([False, True, device,
-                             self.device_monitor.connected_devices[device]['Vendor'],
-                             self.device_monitor.connected_devices[device]['Product']])
+                             self.device_monitor.connected_devices[device]["Vendor"],
+                             self.device_monitor.connected_devices[device]["Product"]])
                 
 
     # Write selected device to file
 	# The device would be kept in a buffer until the program exits
     def write_to_known_devices(self, button):
+
         treeselection = self.treeview.get_selection()
-    	model, treeiter = treeselection.get_selected()
+        model, treeiter = treeselection.get_selected()
         device = {}
         complete_dev = {}
 
         if treeiter != None:
 
-             if model[treeiter][0] == True:
+             if model[treeiter][0]:
        	          return
 
-             if model[treeiter][3] != '':
-                  device['Vendor'] = model[treeiter][2]
+             if model[treeiter][3]:
+                  device["Vendor"] = model[treeiter][2]
 
-             if model[treeiter][4] != '':
-                  device['Product'] = model[treeiter][3]
+             if model[treeiter][4]:
+                  device["Product"] = model[treeiter][3]
  
              key = model[treeiter][2]
              self.device_monitor.add_to_known_device(key, device)
@@ -139,7 +138,8 @@ class USB_ViewFilterWindow(Gtk.Window):
        	
         action = device.action
         dev = device.sys_name
-        print dev
+
+        print(dev)
         (dev_name, key) = self.device_monitor.extract_information(device)
 
         if action == 'add':
@@ -147,12 +147,12 @@ class USB_ViewFilterWindow(Gtk.Window):
             self.device_monitor.add_connected_device(key, dev_name, dev)
 
             if key not in self.device_monitor.known_devices.keys():
-                self.usb_list.append([False, True, key, dev_name['Vendor'],
-															dev_name['Product']])
+                self.usb_list.append([False, True, key, dev_name["Vendor"],
+															dev_name["Product"]])
 				
             else:
-                self.usb_list.append([True, True, key, dev_name['Vendor'],
-														   dev_name['Product']])
+                self.usb_list.append([True, True, key, dev_name["Vendor"],
+														   dev_name["Product"]])
 
         if action == 'remove':
             to_delete_key = self.device_monitor.remove_connected_device(dev)
@@ -161,19 +161,19 @@ class USB_ViewFilterWindow(Gtk.Window):
         if treeiter != None:
               self.treeview.set_cursor(index)
 	
-
         return True
   
     # Remove one entry from the usb_list (to remove from the gtk tree)
     def remove_from_usb_list(self, key):
-		for entry in self.usb_list:
-			if entry[2] == key:
-				entry.model.remove(entry.iter)
-				break
+        for entry in self.usb_list:
+            if entry[2] == key:
+                entry.model.remove(entry.iter)
+                break
 
 
+	# Tests if the usb is connected, known device or unknown
     def usb_filter_func(self, model, iter, data):
-        """Tests if the usb is connected, known device or unknown"""
+
         if self.current_filter_usb is None or self.current_filter_usb == "None":
             return True
 
@@ -187,15 +187,16 @@ class USB_ViewFilterWindow(Gtk.Window):
                 return model[iter][1] == True
 
 
+    # Called on any of the button clicks
     def on_selection_button_clicked(self, widget):
-        """Called on any of the button clicks"""
         self.current_filter_usb = widget.get_label()
-        print("%s usb selected!" % self.current_filter_usb)
+        print("{} usb selected!".format(self.current_filter_usb))
         self.usb_filter.refilter()
+
 
     def quit_monitor(self):
         self.device_monitor.usb_monitor_stop()
-        print self.device_monitor.known_devices
+        print("The know device list {}".format(self.device_monitor.known_devices))
 
 
 if __name__ == "__main__":

@@ -218,10 +218,10 @@ class USB_inhibit:
 				key += str(attributes.get(info))
 
 			if info == "idProduct":
-				dev_idProduct = attributes.get(info)
+				dev_idProduct = str(attributes.get(info))
 
 			elif info == "idVendor":
-				dev_idVendor = attributes.get(info)
+				dev_idVendor = str(attributes.get(info))
 
 			key += self.separator
 
@@ -237,7 +237,9 @@ class USB_inhibit:
 	# Look for device name using the attributes
 	def get_device_name(self, attributes):
 		# Device product and vendor
-		prod_vendor = {}
+		prod_vendor = {	
+						"Vendor": "",
+						"Product": ""}
 	
 		vendorFound = False
 		productFound = False
@@ -294,7 +296,8 @@ class USB_inhibit:
 							print (prod_vendor['Product'])
 							
 						return prod_vendor
-			
+		f_in.close()
+
 		return prod_vendor
 
 	# Start the usb-inhibit program 
