@@ -58,7 +58,7 @@ class USB_ports:
 				f_out.write("0")
 
 		except IOError:
-			print("You do not have enough permission!")
+			print("You do not have enough permissions!")
 			sys.exit(1)
 
 		self.running_mode = running_mode
@@ -278,8 +278,12 @@ class USB_ports:
 		self.busID_key_map[bus_id] = key
 
 	def remove_connected_device(self, bus_id):
-		key = self.busID_key_map.pop(bus_id)
-		self.connected_devices.pop(key)
+		key = None
+
+		if bus_id in self.busID_key_map.keys():
+			key = self.busID_key_map.pop(bus_id)
+			self.connected_devices.pop(key)
+
 		return key
 
 	def add_to_known_device(self, key, dev_name):
