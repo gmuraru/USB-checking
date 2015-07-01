@@ -238,8 +238,8 @@ class USB_inhibit:
 	def get_device_name(self, attributes):
 		# Device product and vendor
 		prod_vendor = {	
-						"Vendor": "",
-						"Product": ""}
+				"Vendor": "",
+				"Product": ""}
 	
 		vendorFound = False
 		productFound = False
