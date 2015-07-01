@@ -135,13 +135,13 @@ class USB_inhibit:
 	def form_initial_devices(self):
 
 		for device in self.context.list_devices(subsystem='usb',
-				DEVTYPE='usb_device'):  
+							DEVTYPE='usb_device'):  
 		                                                                        
 			bus_id = device.sys_name		                                    
 		                                                                        
 			if  device.find_parent(subsystem='usb',
-											device_type='usb_device') != None:  
-				print (bus_id)
+								device_type='usb_device') != None:  
+				print(bus_id)
 		                                                                        
 				(dev_name, key) = self.extract_information(device)              
 		                                                                        
@@ -201,7 +201,7 @@ class USB_inhibit:
 
 	# Stop the usb-inhibit program
 	def stop(self):
-		print ("Exiting...")
+		print("Exiting...")
 		self.rebind_devices()
 		self.observer.stop()
 
@@ -255,11 +255,11 @@ class USB_inhibit:
 		if vendorFound and productFound:
 			return prod_vendor
 
-		print (str(productFound) + "  " + str(vendorFound))
+		print(str(productFound) + "  " + str(vendorFound))
 
 		idVendor = attributes.get("idVendor").decode('utf-8')
 		idProduct = attributes.get("idProduct").decode('utf-8')
-		print (type(idProduct))
+		print(type(idProduct))
 
 
 		if idProduct == None or idVendor == None:
