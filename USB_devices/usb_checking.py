@@ -284,6 +284,10 @@ class USB_ports:
 			key = self.busID_key_map.pop(bus_id)
 			self.connected_devices.pop(key)
 
+		else:
+			print("No prompt message - the device was connected while you were " \
+					"answering for another device")
+
 		return key
 
 	def add_to_known_device(self, key, dev_name):
