@@ -135,7 +135,7 @@ class USB_inhibit:
 	def form_initial_devices(self):
 
 		for device in self.context.list_devices(subsystem='usb',
-														DEVTYPE='usb_device'):  
+												DEVTYPE='usb_device'):  
 		                                                                        
 			bus_id = device.sys_name		                                    
 		                                                                        
