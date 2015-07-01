@@ -257,12 +257,8 @@ class USB_inhibit:
 		if vendorFound and productFound:
 			return prod_vendor
 
-		print(str(productFound) + "  " + str(vendorFound))
-
 		idVendor = attributes.get("idVendor").decode('utf-8')
 		idProduct = attributes.get("idProduct").decode('utf-8')
-		print(type(idProduct))
-
 
 		if idProduct == None or idVendor == None:
 			return prod_vendor
