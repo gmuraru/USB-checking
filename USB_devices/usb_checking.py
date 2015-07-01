@@ -240,11 +240,10 @@ class USB_ports:
 			print("The new `known_device list is` {}".format(self.known_devices))
 
 		else:
-			print("The device was not added")
-			
-	
-					
+			print("The device was not added")				
 
+	
+	# Form the known devices dictionary
 	def get_known_devices(self):
 		if os.path.isfile('known_devices'):
 
@@ -258,7 +257,9 @@ class USB_ports:
 				
 				except TypeError:
 					self.known_devices = {}
+	
 		print("Known devices {}".format(self.known_devices))
+
 
 	# Printing informations about the device
 	def information_print(self, dev_name, dev_information):
@@ -273,10 +274,13 @@ class USB_ports:
 		print("-----------------------------------\n")
 
 
+	# Add a device to the connected devices dictionary (also retain his bus_id)
 	def add_connected_device(self, key, dev_name, bus_id):
 		self.connected_devices[key] = dev_name
 		self.busID_key_map[bus_id] = key
+	
 
+	# Remove device from the connected devices dictionary
 	def remove_connected_device(self, bus_id):
 		key = None
 
@@ -286,10 +290,12 @@ class USB_ports:
 
 		else:
 			print("No prompt message - the device was connected while you were " \
-					"answering for another device")
+				"answering for another device")
 
 		return key
 
+
+	# Add the device to the known list
 	def add_to_known_device(self, key, dev_name):
 		self.known_devices[key] = dev_name
 
@@ -330,6 +336,7 @@ class USB_ports:
 	def reload_on(self):
 		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 			f_out.write("1")
+
 
 def main():
 	usb_guard = USB_ports(RunningMode.CLI)
