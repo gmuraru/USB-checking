@@ -58,5 +58,11 @@ connect to your PC.
 
 Still working on improvements regarding the interface.
 
+## Extension
+* Could be used with pytho2.x and python3
+* For python3.4 there was a problem with the gi.repository module (further looking)
+
 ## Requiremets
 * pyudev --> ```pip install pyudev```
+
+
