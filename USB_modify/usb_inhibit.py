@@ -51,7 +51,7 @@ class USB_inhibit:
 		                "bDescriptorType",                                      
 		                "bLength"]                                              
 		                                                                        
-	looked_vendor_product = ["product", "vendor"]
+	name_device = ["Manufacturer", "Product"]
 
 	# Class initializer
 	def __init__(self, flag_known_devices):
@@ -121,7 +121,7 @@ class USB_inhibit:
 
 	# The proper way to use the usb-inhibit
 	def usage(self):
-		print ("Bad program call\n"
+		print("Bad program call\n"
 				"Call:\n"
 				"\t Method1: ./usb-inhibit.py -- process_with_arguments\n"
 				"\t Method2: python usb-inhibi.py -- process_with_arguments\n"
@@ -196,7 +196,7 @@ class USB_inhibit:
 		# devices that were connected during the usb-inhibit process
 		if not self.flag_remain_seen:
 			for dev in self.busID_key_map.keys():
-				print (dev)
+				print("Rebind devie: {}".format(dev))
 				usb_on.usb_enable(dev)
 
 
@@ -239,20 +239,20 @@ class USB_inhibit:
 	def get_device_name(self, attributes):
 
 		# Device product and vendor
-		prod_vendor = {	
-						"Vendor": "",
+		prod_vendor = {
+						"Manufacturer": "",
 						"Product": ""}
 	
 		vendorFound = False
 		productFound = False
-
-		if self.looked_vendor_product[0] in attributes:
-			prod_vendor["Product"] = attributes.get('product')
-			productFound = True
-			
-		if self.looked_vendor_product[1] in attributes:
-			prod_vendor['Vendor'] = attributes.get('vendor')
+ 
+		if self.name_device[0].lower() in attributes:
+			prod_vendor[self.name_device[0]] = attributes.get(self.name_device[0].lower())
 			vendorFound = True
+			
+		if self.name_device[1].lower() in attributes:
+			prod_vendor[self.name_device[1]] = attributes.get(self.name_device[1].lower())
+			productFound = True
 	
 		if vendorFound and productFound:
 			return prod_vendor
@@ -280,18 +280,15 @@ class USB_inhibit:
 			res = regex_idVendor.match(line_vendor)
 			
 			if res:
-				if "Vendor" not in prod_vendor.keys():
-					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
-					print (prod_vendor["Vendor"])
+				if not prod_vendor["Manufacturer"]:
+					prod_vendor["Manufacturer"] = (res.group(0)).split("  ")[1]
 
 				for line_product in f_in:
 					res = regex_idProduct.match(line_product)
 
 					if res:
-						if "Product" not in prod_vendor.keys():
-
+						if not prod_vendor["Product"]:
 							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
-							print (prod_vendor["Product"])
 							
 						return prod_vendor
 		f_in.close()
@@ -302,12 +299,11 @@ class USB_inhibit:
 	# Start the usb-inhibit program 
 	def start(self):
 
-		print ("Start monitoring!")
+		print("Start monitoring!")
 
 		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 			f_out.write("0")
 		
-			
 		if not self.running_mode_cont:	
 			proc = self.start_process()
 			print ("Runs with a given command mode")
@@ -320,7 +316,7 @@ class USB_inhibit:
 		else:
 			self.observer.daemon = False
 			self.observer.start()
-			print ("Runs in continuous mode")
+			print("Runs in continuous mode")
 
 
 	# Start monitoring
@@ -337,19 +333,19 @@ class USB_inhibit:
 			(dev_name, key) = self.extract_information(device)                  
 			self.add_connected_device(key, dev_name, dev)
 
-			print ("Device added!")
-			print ("Device name {}, bus_id %s and key {}".format(dev_name, dev, key))
+			print("Device added!")
+			print("Device name {}, bus_id {} and key {}".format(dev_name, dev, key))
 			if self.flag_known_devices and key in self.known_devices.keys():
-				print ("Device in known list!")
+				print("Device in known list!")
 				usb_on.usb_enable(dev)
 			else:
-				print ("Unkown device! Better block it!")
+				print("Unkown device! Better block it!")
        
 		# If a device is removed, simply remove it from the
 		# connected device dict
 		if action == 'remove':
-			print ("Device removed!")
-			print ("Device bus_id {}".format(dev))
+			print("Device removed!")
+			print("Device bus_id {}".format(dev))
 			if dev in self.busID_key_map:
 				self.remove_connected_device(dev)
 	
@@ -361,11 +357,11 @@ def main():
 		usb_inhibit.start()
 
 	except KeyboardInterrupt:
-		print ("\nYou killed me with CTRL+C")
+		print("\nYou killed me with CTRL+C")
 		usb_inhibit.stop()
 	
 	except IOError:
-		print ("You do not have enough permissions!")
+		print("You do not have enough permissions!")
 
 if __name__ == "__main__":
 	main()
