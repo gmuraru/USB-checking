@@ -58,6 +58,8 @@ class USB_inhibit:
 	def __init__(self, flag_known_devices):
 		# Devices that where connected when the usb_inhibit started
 		# -- used for the option when the known_devices flag is False
+		# If the Flag is False then all the new connected devices would be unseen
+		# If the Flag is True only the known devices would be allowed to connect
 		self.connected_devices = {}
 
 		# Device that are connected after the usb_inhibit started
@@ -71,7 +73,7 @@ class USB_inhibit:
 		# And their bus_id port if they are connected
 		self.busID_key_map = {}
 	
-		# If the devices must remain unseen after the usb-inhibit stops
+		# If the devices must remain unseen after the usb_inhibit stops
 		self.flag_remain_seen = False
 
 		self.flag_known_devices = flag_known_devices
