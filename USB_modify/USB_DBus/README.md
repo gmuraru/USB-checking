@@ -27,10 +27,9 @@ updated the following days):
 ```
 
 2. Run from one terminal the dbus server:
-'''python test_dbus.py or ./test_dbus.py'''
+```python test_dbus.py or ./test_dbus.py```
 
 3. Run from another terminal the *listener* that would check when the GNOME
 screensaver is active (while it's active the usb_inhibit will kick in and
 when the screen is not blocked it would *bind* the new connecte devices)
-'''python monitor_lockscreen.py'''
-
+```python monitor_lockscreen.py```
