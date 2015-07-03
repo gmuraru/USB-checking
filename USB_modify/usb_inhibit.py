@@ -10,6 +10,7 @@ import subprocess
 
 try:
 	from pyudev import Context, Monitor, MonitorObserver
+
 except ImportError: 
 	sys.exit("Check if you have installed the module pyudev:\n "\
 			"Installation: pip install pyudev")
@@ -55,10 +56,6 @@ class USB_inhibit:
 
 	# Class initializer
 	def __init__(self, flag_known_devices):
-		self.observer = MonitorObserver(self.monitor, callback = self.start_monitor,
-				                                      name='monitor-observer') 
-
-
 		# Devices that where connected when the usb_inhibit started
 		# -- used for the option when the known_devices flag is False
 		self.connected_devices = {}
@@ -81,14 +78,7 @@ class USB_inhibit:
 		
 		self.check_args()
 
-		# For the lock screen (the usb inhibit will continue to run until
-		# a signal is received -- that would tell the screen unlocked)
 
-		# Form the dict with the known devices
-		if flag_known_devices:
-			self.get_known_devices()
-
-		self.form_initial_devices()	
 
 	# Validate the command
 	def check_args(self):
@@ -202,7 +192,7 @@ class USB_inhibit:
 
 	# Stop the usb-inhibit program
 	def stop(self):
-		print("Exiting...")
+		print("Stop monitoring...")
 		self.rebind_devices()
 		self.observer.stop()
 
@@ -301,6 +291,18 @@ class USB_inhibit:
 
 		print("Start monitoring!")
 
+		self.observer = MonitorObserver(self.monitor, callback = self.start_monitor,
+				                                      name='monitor-observer') 
+
+		# For the lock screen (the usb inhibit will continue to run until
+		# a signal is received -- that would tell the screen unlocked)
+
+		# Form the dict with the known devices
+		if self.flag_known_devices:
+			self.get_known_devices()
+
+		self.form_initial_devices()
+
 		with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 			f_out.write("0")
 		
@@ -314,7 +316,10 @@ class USB_inhibit:
 		
 		# For continuous mode must be called manually the stop command
 		else:
-			self.observer.daemon = False
+			# For testing purposes one can let False and then run the inhibit
+			# in continuous mode to see the output of it
+			# self.observer.daemon = False
+			self.observer.daemon = True
 			self.observer.start()
 			print("Runs in continuous mode")
 
