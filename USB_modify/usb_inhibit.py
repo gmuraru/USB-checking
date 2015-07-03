@@ -316,10 +316,8 @@ class USB_inhibit:
 		
 		# For continuous mode must be called manually the stop command
 		else:
-			# For testing purposes one can let False and then run the inhibit
-			# in continuous mode to see the output of it
-			# self.observer.daemon = False
-			self.observer.daemon = True
+			# Default run mode as daemon
+			self.observer.daemon = False
 			self.observer.start()
 			print("Runs in continuous mode")
 
