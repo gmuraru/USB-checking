@@ -37,7 +37,7 @@ class USB_ViewFilterWindow(Gtk.Window):
 
         self.treeview = Gtk.TreeView.new_with_model(self.usb_filter)
 
-        for i, column_title in enumerate(["Known Device", "Connected", "Id", "Vendor", "Product"]):
+        for i, column_title in enumerate(["Known Device", "Connected", "Id", "Manufacturer", "Product"]):
             renderer = Gtk.CellRendererText()
             renderer.set_property('cell-background', 'grey')
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
@@ -78,12 +78,12 @@ class USB_ViewFilterWindow(Gtk.Window):
 
             if device in self.device_monitor.connected_devices.keys():
                 self.usb_list.append([True, True, device,
-                            self.device_monitor.known_devices[device]["Vendor"],
+                            self.device_monitor.known_devices[device]["Manufacturer"],
                             self.device_monitor.known_devices[device]["Product"]])
 
             else:
                 self.usb_list.append([True, False, device,
-							self.device_monitor.known_devices[device]["Vendor"],
+							self.device_monitor.known_devices[device]["Manufacturer"],
 							self.device_monitor.known_devices[device]["Product"]])
 				
 
@@ -91,7 +91,7 @@ class USB_ViewFilterWindow(Gtk.Window):
 			
             if device not in self.device_monitor.known_devices.keys():
                 self.usb_list.append([False, True, device,
-                             self.device_monitor.connected_devices[device]["Vendor"],
+                             self.device_monitor.connected_devices[device]["Manufacturer"],
                              self.device_monitor.connected_devices[device]["Product"]])
                 
 
@@ -110,7 +110,7 @@ class USB_ViewFilterWindow(Gtk.Window):
        	          return
 
              if model[treeiter][3]:
-                  device["Vendor"] = model[treeiter][2]
+                  device["Manufacturer"] = model[treeiter][2]
 
              if model[treeiter][4]:
                   device["Product"] = model[treeiter][3]
@@ -140,18 +140,18 @@ class USB_ViewFilterWindow(Gtk.Window):
         dev = device.sys_name
 
         print(dev)
-        (dev_name, key) = self.device_monitor.extract_information(device)
 
         if action == 'add':
+            (dev_name, key) = self.device_monitor.extract_information(device)
             self.device_monitor.busID_key_map[dev] = key
             self.device_monitor.add_connected_device(key, dev_name, dev)
 
             if key not in self.device_monitor.known_devices.keys():
-                self.usb_list.append([False, True, key, dev_name["Vendor"],
+                self.usb_list.append([False, True, key, dev_name["Manufacturer"],
 															dev_name["Product"]])
 				
             else:
-                self.usb_list.append([True, True, key, dev_name["Vendor"],
+                self.usb_list.append([True, True, key, dev_name["Manufacturer"],
 														   dev_name["Product"]])
 
         if action == 'remove':
