@@ -10,7 +10,7 @@ users block a device than all the users would have that device blocked.
 with the following content (the content is very simplified but it would be
 updated the following days):
 
-'''
+```
 <!DOCTYPE busconfig PUBLIC                                                      
  "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"                          
  "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">                 
@@ -24,7 +24,7 @@ updated the following days):
         <allow send_destination="org.me.usb"/>                                  
     </policy>                                                                   
 </busconfig>
-'''
+```
 
 2. Run from one terminal the dbus server:
 '''python test_dbus.py or ./test_dbus.py'''
