@@ -19,6 +19,19 @@ to a trusted file (*known_host* in our case)
 
 ---
 ## USB_modify folder
+
+** USB inhibit **
+This script could run in 2 modes (the complete description could be find in the
+script):
+
+1. *continuous mode* --> block all the new connected devices until you decide
+to kill the process:
+```python usb_inhibit.py```
+
+2. *a command mode* --> block all the new connected devices until a command
+is finished:
+```python usb_inhibit.py -- sleep 10m```
+
 ### USB_DBus folder
 
 USB turn on
@@ -31,13 +44,8 @@ USB turn on
 
 **USB DBus**
 
-
-USB-inhibit
-
-```python usb-inhibit -- application_name```
-
-While the *application_name* is running let no USB devices
-connect to your PC.
+For this part is used a listener (to check when the screensaver is activated)
+and a dbus service to start/stop the monitorisation.
 
 Still working on improvements regarding the interface.
 
