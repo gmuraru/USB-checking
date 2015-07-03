@@ -44,7 +44,7 @@ class USB_ports:
 						"bDescriptorType",
 						"bLength"]
 
-	looked_vendor_product = ["product", "vendor"]
+	name_device = ["Manufacturer", "Product"]
 
 	# The unique identifier (indexes of the looked_information)
 	# Currently all the information is used for unique identification
@@ -126,20 +126,21 @@ class USB_ports:
 
 	def get_device_name(self, attributes):
 		# Device product and vendor
-		prod_vendor = { "Vendor": "",
+		
+		prod_vendor = { "Manufacturer": "",
 						"Product": ""}
 	
 		vendorFound = False
 		productFound = False
 
 		# Check if Product and Vendor are in the device attributes
-		if self.looked_vendor_product[0] in attributes:
-			prod_vendor["Product"] = attributes.get('product').decode('ascii')
-			productFound = True
-			
-		if self.looked_vendor_product[1] in attributes:
-			prod_vendor['Vendor'] = attributes.get('vendor').decode('ascii')
+		if self.name_device[0].lower() in attributes:
+			prod_vendor[self.name_device[0]] = attributes.get("manufacturer")#.decode('ascii')
 			vendorFound = True
+			
+		if self.name_device[1].lower() in attributes:
+			prod_vendor[self.name_device[1]] = attributes.get("product")#.decode('ascii')
+			productFound = True
 	
 		if vendorFound and productFound:
 			return prod_vendor
@@ -172,15 +173,14 @@ class USB_ports:
 			res = regex_idVendor.match(line_vendor)
 
 			if res:
-				if not prod_vendor["Vendor"]:
-					prod_vendor["Vendor"] = (res.group(0)).split("  ")[1]
+				if not prod_vendor["Manufacturer"]:
+					prod_vendor["Manufacturer"] = (res.group(0)).split("  ")[1]
 
 				for line_product in f_in:
 					res = regex_idProduct.match(line_product)
 
 					if res:
 						if not prod_vendor["Product"]:
-
 							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
 						
 						return prod_vendor
@@ -263,7 +263,7 @@ class USB_ports:
 
 	# Printing informations about the device
 	def information_print(self, dev_name, dev_information):
-		print("Vendor: {}".format(dev_name["Vendor"])) 
+		print("Manufacturer: {}".format(dev_name["Manufacturer"])) 
 		print("Product: {}".format(dev_name["Product"]))
 		dev_info_split = dev_information.split(self.separator)
 
