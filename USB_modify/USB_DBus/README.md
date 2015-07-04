@@ -7,8 +7,8 @@ users block a device than all the users would have that device blocked.
 -------
 #### How to run
 1. First there must be a service file in the **/etc/services/dbus-1/system.d**
-with the following content (the content is very simplified but it would be
-updated the following days):
+with the following content with the name *org.me.usb.conf* (the content is very
+simplified but it would be updated the following days):
 
 ```
 <!DOCTYPE busconfig PUBLIC                                                      
