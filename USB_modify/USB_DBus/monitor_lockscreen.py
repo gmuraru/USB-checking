@@ -1,4 +1,4 @@
-#!/usr/bin/python  
+#!/usr/bin/env python3 
 
 import dbus
 from gi.repository import GLib
@@ -11,7 +11,6 @@ usb_inhibit = USB_inhibit(True)
 bus2 = dbus.SystemBus()
 usb_service = bus2.get_object('org.me.usb', '/org/me/usb')
 
-print ("WTF")
 def notificationScreen(bus, message):
 	print(message)
 	if message.get_member() != "ActiveChanged":
