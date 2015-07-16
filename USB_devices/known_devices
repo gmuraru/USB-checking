@@ -1,6 +1,10 @@
 {
-    "1::::0000:0024:8087::01:00:09:::": {
-        "Vendor": "Intel Corp.",
-        "Product": "Integrated Rate Matching Hub"
+    "1::::0100:1641:0951::00:00:00:::": {
+        "Product": "Kingston", 
+        "Manufacturer": "1::::0100:1641:0951::00:00:00:::"
+    }, 
+    "1::::0009:2c18:1bcf::01:02:ef:::": {
+        "Product": "NC.21411.00X2392B745LM0009", 
+        "Manufacturer": "1::::0009:2c18:1bcf::01:02:ef:::"
     }
 }
