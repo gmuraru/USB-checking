@@ -37,4 +37,9 @@ bus.add_match_string("type='signal', interface='org.gnome.ScreenSaver'")
 bus.add_message_filter(notificationScreen)
 
 mainloop = GLib.MainLoop()
-mainloop.run()
+
+try:
+	mainloop.run()
+except KeyboardInterrupt:
+	print("\nThe MainLoop will close...")
+	mainloop.quit()

@@ -2,9 +2,9 @@
 
 # DBus to turn USB on or off (by unbinding the driver)
 
-from gi.repository import Gtk
 import dbus
 import dbus.service
+from gi.repository import GLib
 from dbus.mainloop.glib import DBusGMainLoop
 from usb_inhibit import USB_inhibit
 
@@ -28,4 +28,11 @@ class USB_DBus(dbus.service.Object):
 
 DBusGMainLoop(set_as_default=True)
 dbus_service = USB_DBus()
-Gtk.main() 
+
+mainloop = GLib.MainLoop()
+
+try:
+	mainloop.run()
+except KeyboardInterrupt:
+	print("\nThe MainLoop will close...")
+	mainloop.quit()
