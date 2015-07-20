@@ -3,13 +3,10 @@
 import dbus
 from gi.repository import GLib
 from dbus.mainloop.glib import DBusGMainLoop  
-from usb_inhibit import USB_inhibit
 
 		
-usb_inhibit = USB_inhibit(True)
-
 bus2 = dbus.SystemBus()
-usb_service = bus2.get_object('org.me.usb', '/org/me/usb')
+usb_service_proxy = bus2.get_object('org.gnome.USBBlocker', '/org/gnome/USBBlocker')
 
 def notificationScreen(bus, message):
 	print(message)
@@ -24,10 +21,10 @@ def notificationScreen(bus, message):
 
 	if args[0] == True:
 		print("Screen Locked")
-		usb_service.get_dbus_method('start_monitor', 'org.me.usb')()
+		usb_service.get_dbus_method('start_monitor', 'org.gnome.USBBlocker.monitor')()
 	else:
 		print("Screen Unlocked")
-		usb_service.get_dbus_method('stop_monitor', 'org.me.usb')()
+		usb_service.get_dbus_method('stop_monitor', 'org.gnome.USBBlocker.monitor')()
 
 DBusGMainLoop(set_as_default=True)
 

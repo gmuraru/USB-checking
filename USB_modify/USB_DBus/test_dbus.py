@@ -11,17 +11,17 @@ from usb_inhibit import USB_inhibit
 class USB_DBus(dbus.service.Object):
 	def __init__(self):
 		self.usb_inhibit = USB_inhibit(True)
-		bus_name = dbus.service.BusName('org.me.usb', bus=dbus.SystemBus())
-		dbus.service.Object.__init__(self, bus_name, '/org/me/usb')
+		bus_name = dbus.service.BusName('org.gnome.USBBlocker', bus=dbus.SystemBus())
+		dbus.service.Object.__init__(self, bus_name, '/org/gnome/USBBlocker')
 
 
-	@dbus.service.method('org.me.usb')
+	@dbus.service.method('org.gnome.USBBlocker.monitor')
 	def start_monitor(self):
 		print("Start monitoring dbus message")
 		self.usb_inhibit.start()
 
 
-	@dbus.service.method('org.me.usb')
+	@dbus.service.method('org.gnome.USBBlocker.monitor')
 	def stop_monitor(self):
 		print("Stop monitoring dbus message")
 		self.usb_inhibit.stop()
