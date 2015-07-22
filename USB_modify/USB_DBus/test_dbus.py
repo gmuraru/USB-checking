@@ -9,22 +9,30 @@ from dbus.mainloop.glib import DBusGMainLoop
 from usb_inhibit import USB_inhibit
 
 class USB_DBus(dbus.service.Object):
+	monitor_work = False
+
 	def __init__(self):
 		self.usb_inhibit = USB_inhibit(True)
 		bus_name = dbus.service.BusName('org.gnome.USBBlocker', bus=dbus.SystemBus())
 		dbus.service.Object.__init__(self, bus_name, '/org/gnome/USBBlocker')
 
+	@dbus.service.method('org.gnome.USBBlocker.monitor')
+	def get_status(self):
+		return self.monitor_work
+		
 
 	@dbus.service.method('org.gnome.USBBlocker.monitor')
 	def start_monitor(self):
 		print("Start monitoring dbus message")
-		self.usb_inhibit.start()
-
+		if not self.monitor_word:
+			self.usb_inhibit.start()
+			self.monitor_work = True
 
 	@dbus.service.method('org.gnome.USBBlocker.monitor')
 	def stop_monitor(self):
 		print("Stop monitoring dbus message")
-		self.usb_inhibit.stop()
+		if self.monitor_work:
+			self.usb_inhibit.stop()
 
 DBusGMainLoop(set_as_default=True)
 dbus_service = USB_DBus()
