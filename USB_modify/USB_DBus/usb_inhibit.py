@@ -54,6 +54,16 @@ class USB_inhibit:
 		                                                                        
 	name_device = ["Manufacturer", "Product"]
 
+		
+
+	# Check if the drivers binding is on/off
+	def get_status(self):
+		with open('/sys/bus/usb/drivers_autoprobe', 'rt') as f_out:
+			if f_out.read() == "1":
+				return False
+
+		return True
+	
 	# Class initializer
 	def __init__(self, flag_known_devices):
 		# Devices that where connected when the usb_inhibit started
