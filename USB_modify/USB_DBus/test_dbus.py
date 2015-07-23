@@ -16,22 +16,23 @@ class USB_DBus(dbus.service.Object):
 		bus_name = dbus.service.BusName('org.gnome.USBBlocker', bus=dbus.SystemBus())
 		dbus.service.Object.__init__(self, bus_name, '/org/gnome/USBBlocker')
 
-	@dbus.service.method('org.gnome.USBBlocker.monitor')
+	@dbus.service.method(dbus_interface = 'org.gnome.USBBlocker.monitor', in_signature = '', out_signature='b')
 	def get_status(self):
 		return self.monitor_work
 		
 
-	@dbus.service.method('org.gnome.USBBlocker.monitor')
+	@dbus.service.method(dbus_interface = 'org.gnome.USBBlocker.monitor')
 	def start_monitor(self):
 		print("Start monitoring dbus message")
-		if not self.monitor_word:
+		if not self.monitor_work:
 			self.usb_inhibit.start()
 			self.monitor_work = True
 
-	@dbus.service.method('org.gnome.USBBlocker.monitor')
+	@dbus.service.method(dbus_interface = 'org.gnome.USBBlocker.monitor')
 	def stop_monitor(self):
 		print("Stop monitoring dbus message")
 		if self.monitor_work:
+			self.monitor_work = False
 			self.usb_inhibit.stop()
 
 DBusGMainLoop(set_as_default=True)
