@@ -155,6 +155,7 @@ const Caffeine = new Lang.Class({
 
         // Restore user state
         if (this._settings.get_boolean(USER_ENABLED_KEY)) {
+			Main.notify(_("WTF is this " + this._settings.get_boolean(USER_ENABLED_KEY)));
             this.toggleState();
         }
         // Enable caffeine when fullscreen app is running
@@ -193,6 +194,7 @@ const Caffeine = new Lang.Class({
     },
 
     toggleState: function() {
+		Main.notify(_("This is " + this._settings.get_boolean(USER_ENABLED_KEY)));
         if (this._state) {
             this._apps.map(Lang.bind(this, function(app_id) {
                 this.removeInhibit(app_id);
