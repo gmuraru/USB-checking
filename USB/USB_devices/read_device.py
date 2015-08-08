@@ -2,6 +2,8 @@
 
 import re
 
+
+## Needed information when getting attributes
 device_descriptor = ["bLength", 
 			 "bDescriptorType",
 			 "bcdUSB",
@@ -100,6 +102,7 @@ def extract_information(device):
 	return (dev_name, key)
 
 
+# Place the device name in the third and forth column
 def get_device_name(attributes):
 	# Device product and vendor
 	
