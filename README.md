@@ -39,7 +39,7 @@ This would allow only Audio and USB Mass Storage devices.
 
 ### USB_DBus folder
 
-USB turn on
+**USB turn on**
 
 ```python usb_on.py bus_id (bus_id the given parameter)```
 
