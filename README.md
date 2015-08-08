@@ -16,6 +16,7 @@ to a trusted file (*known_host* in our case)
 
 ###Updates
 * Add pyudev library to check for new added devices (no more expensive loop)
+* Add pyusb library to get the device descriptors, custom search and device binding
 
 ---
 ## USB_modify folder
