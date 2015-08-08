@@ -47,14 +47,15 @@ class USB_ports:
 
 		print("Connected-devices that are new")
 		for device in self.context.list_devices(subsystem='usb',
-														DEVTYPE='usb_device'):
+			                            		DEVTYPE='usb_device'):
 
-			if	device.find_parent(subsystem='usb', 
-											device_type='usb_device') != None:
+			if device.find_parent(subsystem='usb', 
+						device_type='usb_device') != None:
 				'''	
 				print(bus_id)
 				print("-------------------------------------------")
 				'''
+
 				bus_id = device.sys_name
 			
 				devnum = int(device.attributes.get("devnum"))

@@ -3,46 +3,49 @@
 import re
 
 device_descriptor = ["bLength", 
-			 "bDescriptorType",
-			 "bcdUSB",
-			 "bDeviceClass", 
-			 "bDeviceSubClass",
-			 "bDeviceProtocol",
-			 "bMaxPacketSize0",
-			 "idVendor",
-			 "idProduct",
-			 "bcdDevice",
-			 "iManufacturer",
-			 "iProduct",
-			 "iSerialNumber", 
-			 "bNumConfigurations"]
+                         "bDescriptorType",
+                         "bcdUSB",
+                         "bDeviceClass", 
+                         "bDeviceSubClass",
+                         "bDeviceProtocol",
+                         "bMaxPacketSize0",
+                         "idVendor",
+                         "idProduct",
+                         "bcdDevice",
+                         "iManufacturer",
+                         "iProduct",
+                         "iSerialNumber", 
+                         "bNumConfigurations"]
 
 
 configuration_descriptor = ["bLength",
-				"bDescriptorType",
-				"wTotalLength",
-				"bNumInterfaces",
-				"bConfigurationValue",
-				"iConfiguration",
-				"bmAttributes",
-				"bMaxPower"]
+                                "bDescriptorType",
+                                "wTotalLength",
+                                "bNumInterfaces",
+                                "bConfigurationValue",
+                                "iConfiguration",
+                                "bmAttributes",
+                                "bMaxPower"]
 
 interface_descriptor = ["bLength",
-			"bDescriptorType",
-			"bInterfaceNumber",
-			"bAlternateSetting",
-			"bNumEndpoints",
-			"bInterfaceClass",
-			"bInterfaceSubClass",
-			"bInterfaceProtocol",
-			"iInterface"]
+                        "bDescriptorType",
+                        "bInterfaceNumber",
+                        "bAlternateSetting",
+                        "bNumEndpoints",
+                        "bInterfaceClass",
+                        "bInterfaceSubClass",
+                        "bInterfaceProtocol",
+                        "iInterface"]
 
 endpoint_descriptor = ["bLength",
-			   "bDescriptorType",
-			   "bEndpointAddress",
-			   "bmAttributes",
-			   "wMaxPacketSize",
-			   "bInterval"]
+                           "bDescriptorType",
+                           "bEndpointAddress",
+                           "bmAttributes",
+                           "wMaxPacketSize",
+                           "bInterval"]
+
+
+
 
 separator = ":"
 name_device = ["Manufacturer", "Product"]
@@ -65,39 +68,6 @@ def get_descriptors(device):
 				information += str(endpoint.__getattribute__(dev_endpoint)) + separator
 
 	return information[:-1]
-
-
-def extract_information(device):
-	information = {}
-	key = ""
-
-	attributes = device.attributes
-
-	for info in self.looked_information:
-
-		if info in attributes:
-			key += attributes.get(info).decode('utf-8')
-
-		if info == "idProduct":
-			dev_idProduct = attributes.get(info).decode('utf-8')
-
-		elif info == "idVendor":
-			dev_idVendor = attributes.get(info).decode('utf-8')
-
-		key += self.separator
-
-
-	# Eliminate the last ":"
-	key = key[:-1]
-
-
-	# The break occured and we can not get a piece of information
-	# about the usb device
-
-	#print("This is the key {}".format(key))
-	
-	dev_name = self.get_device_name(attributes)
-	return (dev_name, key)
 
 
 def get_device_name(attributes):
