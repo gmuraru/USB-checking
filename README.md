@@ -1,6 +1,6 @@
 #USB-checking
 
-##USB_device folder
+##USB_devices folder
 Check if a connected devices was already seen by the computer.
 If the device was not seen, it will ask for your permission to add it
 to a trusted file (*known_host* in our case)
@@ -19,7 +19,7 @@ to a trusted file (*known_host* in our case)
 * Add pyusb library to get the device descriptors, custom search and device binding
 
 ---
-## USB_modify folder
+## USB_DBus folder
 
 ** USB inhibit **
 This script could run in 2 modes (the complete description could be find in the
@@ -32,6 +32,10 @@ to kill the process:
 2. *a command mode* --> block all the new connected devices until a command
 is finished:
 ```python usb_inhibit.py -- sleep 10m```
+
+3. *allow mode* --> allow a specific class of devices:
+```python usb_inhibit.py -- allow 0x08 0x01```
+This would allow only Audio and USB Mass Storage devices.
 
 ### USB_DBus folder
 
