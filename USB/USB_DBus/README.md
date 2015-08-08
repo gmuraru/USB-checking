@@ -6,6 +6,9 @@ users block a device than all the users would have that device blocked.
 
 -------
 #### How to run
+You could simply run the usb_inhibit.py or you could follow the bellow steps for
+the lockscreen monitor.
+
 1. First there must be a service file in the **/etc/services/dbus-1/system.d**
 with the following content with the name *org.me.usb.conf* (the content is very
 simplified but it would be updated the following days):

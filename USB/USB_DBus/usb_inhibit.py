@@ -51,8 +51,6 @@ class USB_inhibit:
 	device_class_non_block = []
 
 
-	
-
 	# Class initializer
 	def __init__(self, flag_known_devices):
 		# Devices that where connected when the usb_inhibit started
@@ -86,6 +84,17 @@ class USB_inhibit:
 		# Eg. usb-inhibit -u -- sleep 10
 		try:
 			index = sys.argv.index('--') # --> 2
+
+                        # Check if block
+                        if sys.argv[index+1:][0] == "allow":
+                            try: 
+                                self.device_class_non_block = [int(x, 0) for x in sys.argv[index+1:][1:]]
+                                print (self.device_class_non_block)
+                            except ValueError:
+                                sys.exit("Invalid arguments for allow - use only valid device classes")
+
+                            self.running_mode_cont = True
+                            return
 
 			# The process
 			self.process = sys.argv[index+1:] # --> sleep 10
@@ -403,7 +412,7 @@ def main():
     usb_inhibit = USB_inhibit(True)
 
     try:
-        usb_inhibit.add_nonblock_device(USB_inhibit.AUDIO)
+        #usb_inhibit.add_nonblock_device(USB_inhibit.AUDIO)
         #usb_inhibit.add_nonblock_device(USB_inhibit.MASS_STORAGE)
     	usb_inhibit.start()
 
