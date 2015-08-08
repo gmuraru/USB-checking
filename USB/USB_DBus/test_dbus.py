@@ -22,14 +22,15 @@ class USB_DBus(dbus.service.Object):
 		return self.monitor_work
 		
 
-	@dbus.service.method(dbus_interface='org.gnome.USBBlocker.monitor')
+	@dbus.service.method(dbus_interface='org.gnome.USBBlocker.inhibit')
 	def start_monitor(self):
 		print("Start monitoring dbus message")
 		if not self.monitor_work:
 			self.usb_inhibit.start()
 			self.monitor_work = True
 
-	@dbus.service.method(dbus_interface='org.gnome.USBBlocker.monitor')
+
+	@dbus.service.method(dbus_interface='org.gnome.USBBlocker.inhibit')
 	def stop_monitor(self):
 		print("Stop monitoring dbus message")
 		if self.monitor_work:

@@ -389,6 +389,7 @@ class USB_inhibit:
 				usb_on.usb_enable(bus_id)
 			else:
 				print("Unkown device! Better block it!")
+
        
 		# If a device is removed, simply remove it from the
 		# connected device dict
@@ -402,7 +403,7 @@ def main():
     usb_inhibit = USB_inhibit(True)
 
     try:
-        #usb_inhibit.add_nonblock_device(USB_inhibit.AUDIO)
+        usb_inhibit.add_nonblock_device(USB_inhibit.AUDIO)
         #usb_inhibit.add_nonblock_device(USB_inhibit.MASS_STORAGE)
     	usb_inhibit.start()
 
