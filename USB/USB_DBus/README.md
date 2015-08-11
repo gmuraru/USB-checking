@@ -9,9 +9,9 @@ users block a device than all the users would have that device blocked.
 You could simply run the usb_inhibit.py or you could follow the bellow steps for
 the lockscreen monitor.
 
-1. First there must be a service file in the **/etc/services/dbus-1/system.d**
-with the following content with the name *org.me.usb.conf* (the content is very
-simplified but it would be updated the following days):
+1. First there must be a service file *org.gnome.USBBlocker.conf* in the
+**/etc/dbus-1/system.d** directory with the following content (the
+content is very simplified but it would be updated the following days):
 
 ```
 <!DOCTYPE busconfig PUBLIC                                                      
@@ -29,10 +29,19 @@ simplified but it would be updated the following days):
 </busconfig>
 ```
 
-2. Run from one terminal the dbus server:
-```python test_dbus.py or ./test_dbus.py```
+2. Also there must be a file in *org.gnome.USBBlocker.service* in the
+**/usr/share/dbus-1/system-services** directory with the following content:
+
+```
+[D-BUS Service]                                                                 
+Name=org.gnome.USBBlocker                                                       
+Exec=/home/george/GSoC_overall/GSoC/USB/USB_DBus/test_dbus.py                   
+User=root 
+```
 
 3. Run from another terminal the *listener* that would check when the GNOME
 screensaver is active (while it's active the usb_inhibit will kick in and
 when the screen is not blocked it would *bind* the new connecte devices)
 ```python monitor_lockscreen.py```
+
+    Or you could just call *usb_inhibit.py* and it would run in a continuous mode
