@@ -1,0 +1,6 @@
+{
+  "name": "USB-inhibitor",
+  "uuid": "inhibiter-USB",
+  "description": "Disable USB when screeblock is on or when the user wants that",
+  "shell-version": ["3.14","3.16","3.17.4"]
+}
