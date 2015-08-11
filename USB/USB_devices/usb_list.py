@@ -115,34 +115,38 @@ class USB_ViewFilterWindow(Gtk.Window):
                 
 
     # Write selected device to file
-	# The device would be kept in a buffer until the program exits
+    # The device would be kept in a buffer until the program exits
     def write_to_known_devices(self, button):
 
         treeselection = self.treeview.get_selection()
         model, treeiter = treeselection.get_selected()
         device = {}
-        complete_dev = {}
 
+        print ("HERE it is ")
         if treeiter != None:
 
-             if model[treeiter][0] == Gtk.STOCK_YES:
-       	          return
+            if model[treeiter][0] == Gtk.STOCK_YES:
+       	        return
 
-             if model[treeiter][3]:
-                  device["Manufacturer"] = model[treeiter][2]
+            if model[treeiter][3]:
+                device["Manufacturer"] = model[treeiter][3]
 
-             if model[treeiter][4]:
-                  device["Product"] = model[treeiter][3]
+            if model[treeiter][4]:
+                device["Product"] = model[treeiter][4]
+
+            print("HEllo there !")
+            print(device["Product"])
+            print(device["Manufacturer"])
             
-             busnum, devnum = model[treeiter][2].split("\n")[0].split("Bus")[1].split("Address")
-             devnum = devnum.split()[0]
+            busnum, devnum = model[treeiter][2].split("\n")[0].split("Bus")[1].split("Address")
+            devnum = devnum.split()[0]
 
-             dev = usb.core.find(address=int(devnum), bus=int(busnum))
+            dev = usb.core.find(address=int(devnum), bus=int(busnum))
 
-             dev_id = read_device.get_descriptors(dev)
+            dev_id = read_device.get_descriptors(dev)
 
-             self.device_monitor.add_to_known_device(dev_id, device, dev)
-             model.set_value(treeiter, 0, Gtk.STOCK_YES)
+            self.device_monitor.add_to_known_device(dev_id, device, dev)
+            model.set_value(treeiter, 0, Gtk.STOCK_YES)
 
 
         else:
@@ -158,7 +162,6 @@ class USB_ViewFilterWindow(Gtk.Window):
         treeselection = self.treeview.get_selection()
         model, treeiter = treeselection.get_selected()
         device = {}
-        complete_dev = {}
 
         if treeiter != None:
 
@@ -175,7 +178,6 @@ class USB_ViewFilterWindow(Gtk.Window):
              devnum = devnum.split()[0]
 
              dev = usb.core.find(address=int(devnum), bus=int(busnum))
-
              dev_id = read_device.get_descriptors(dev)
 
              self.device_monitor.known_devices.pop(dev_id)
@@ -220,11 +222,11 @@ class USB_ViewFilterWindow(Gtk.Window):
 
             if dev_id not in self.device_monitor.known_devices.keys():
                 self.usb_list.append([Gtk.STOCK_NO, True, str(dev), dev_name["Manufacturer"],
-															dev_name["Product"]])
+    				    dev_name["Product"]])
 				
             else:
                 self.usb_list.append([Gtk.STOCK_YES, True, str(dev), dev_name["Manufacturer"],
-														   dev_name["Product"]])
+				    dev_name["Product"]])
 
         if action == 'remove':
             bus_id = self.device_monitor.remove_connected_device(dev)
@@ -250,13 +252,13 @@ class USB_ViewFilterWindow(Gtk.Window):
             return True
 
         elif self.current_filter_usb == "Known Devices":
-            	return model[iter][0] == Gtk.STOCK_YES
+            return model[iter][0] == Gtk.STOCK_YES
 
         elif self.current_filter_usb == "Unknown Devices":
-                return model[iter][0] == False
+            return model[iter][0] == False
 
         else:
-                return model[iter][1] == True
+            return model[iter][1] == True
 
 
     # Called on any of the button clicks
