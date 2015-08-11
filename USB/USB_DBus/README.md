@@ -12,7 +12,6 @@ the lockscreen monitor.
 1. First there must be a service file *org.gnome.USBBlocker.conf* in the
 **/etc/dbus-1/system.d** directory with the following content (the
 content is very simplified but it would be updated the following days):
-
 ```
 <!DOCTYPE busconfig PUBLIC                                                      
  "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"                          
@@ -28,17 +27,14 @@ content is very simplified but it would be updated the following days):
     </policy>                                                                   
 </busconfig>
 ```
-
 2. Also there must be a file in *org.gnome.USBBlocker.service* in the
 **/usr/share/dbus-1/system-services** directory with the following content:
-
 ```
 [D-BUS Service]                                                                 
 Name=org.gnome.USBBlocker                                                       
 Exec=/home/george/GSoC_overall/GSoC/USB/USB_DBus/test_dbus.py                   
 User=root 
 ```
-
 3. Run from another terminal the *listener* that would check when the GNOME
 screensaver is active (while it's active the usb_inhibit will kick in and
 when the screen is not blocked it would *bind* the new connecte devices)
