@@ -1,0 +1,7 @@
+{
+  "name": "USB inhibitor",
+  "uuid": "usb-inhibitor",
+  "description": "Disable USB when screenblock is on or when the user wants that",
+  "shell-version": ["3.14","3.16","3.17.4"],
+  "settings-schema": "org.gnome.shell.extensions.usbinhibitor"
+}
