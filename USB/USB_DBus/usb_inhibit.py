@@ -214,97 +214,6 @@ class USB_inhibit:
 	self.busID_key_map.clear()
 
 
-
-	# Extract information from a device
-	# !!! Not used !!!
-	def extract_information(self, device):
-		information = {}
-		key = ""
-
-		attributes = device.attributes
-
-		for info in self.looked_information:
-			if info in attributes:
-				key += str(attributes.get(info))
-
-			if info == "idProduct":
-				dev_idProduct = str(attributes.get(info))
-
-			elif info == "idVendor":
-				dev_idVendor = str(attributes.get(info))
-
-			key += self.separator
-
-
-		# Eliminate the last ":"
-		key = key[:-1]
-
-
-		dev_name = self.get_device_name(attributes)
-		return (dev_name, key)
-
-
-	# Look for device name using the attributes
-	def get_device_name(self, attributes):
-
-		# Device product and vendor
-		prod_vendor = {
-				"Manufacturer": "",
-        			"Product": ""}
-	
-		vendorFound = False
-		productFound = False
- 
-		if self.name_device[0].lower() in attributes:
-			prod_vendor[self.name_device[0]] = attributes.get(self.name_device[0].lower())
-			vendorFound = True
-			
-		if self.name_device[1].lower() in attributes:
-			prod_vendor[self.name_device[1]] = attributes.get(self.name_device[1].lower())
-			productFound = True
-	
-		if vendorFound and productFound:
-			return prod_vendor
-
-		idVendor = attributes.get("idVendor").decode('utf-8')
-		idProduct = attributes.get("idProduct").decode('utf-8')
-
-		if idProduct == None or idVendor == None:
-			return prod_vendor
-
-		regex_idVendor = re.compile('^{}  .*'.format(idVendor))
-		regex_idProduct = re.compile('\t{}  .*'.format(idProduct))
-
-		try:	
-			f_in = open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
-					errors='replace')
-
-		except TypeError:
-			import codecs
-			f_in = codecs.open('/var/lib/usbutils/usb.ids', 'rt', encoding='utf-8',
-					errors='replace')
-				
-		
-		for line_vendor in f_in:
-			res = regex_idVendor.match(line_vendor)
-			
-			if res:
-				if not prod_vendor["Manufacturer"]:
-					prod_vendor["Manufacturer"] = (res.group(0)).split("  ")[1]
-
-				for line_product in f_in:
-					res = regex_idProduct.match(line_product)
-
-					if res:
-						if not prod_vendor["Product"]:
-							prod_vendor["Product"] = (res.group(0)).split("  ")[1]
-							
-						return prod_vendor
-		f_in.close()
-
-		return prod_vendor
-
-
     # Start the usb-inhibit program 
     def start(self):
 
@@ -318,8 +227,8 @@ class USB_inhibit:
 	if self.flag_known_devices:
     	    self.get_known_devices()
 
-	# Initial devices not formed
-#	self.form_initial_devices()
+	# Initial devices not formed - currently not used
+        #self.form_initial_devices()
 
 	with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
 	    f_out.write("0")

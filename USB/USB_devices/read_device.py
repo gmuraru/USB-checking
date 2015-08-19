@@ -69,38 +69,6 @@ def get_descriptors(device):
     return information[:-1]
 
 
-def extract_information(device):
-    information = {}
-    key = ""
-
-    attributes = device.attributes
-
-    for info in self.looked_information:
-
-    	if info in attributes:
-            key += attributes.get(info).decode('utf-8')
-
-	if info == "idProduct":
-	    dev_idProduct = attributes.get(info).decode('utf-8')
-
-	elif info == "idVendor":
-    	    dev_idVendor = attributes.get(info).decode('utf-8')
-
-	key += self.separator
-
-
-    # Eliminate the last ":"
-    key = key[:-1]
-
-
-    # The break occured and we can not get a piece of information
-    # about the usb device
-
-    #print("This is the key {}".format(key))
-    dev_name = self.get_device_name(attributes)
-    return (dev_name, key)
-
-
 # Place the device name in the third and forth column
 def get_device_name(attributes):
     # Device product and vendor
@@ -151,17 +119,18 @@ def get_device_name(attributes):
     	res = regex_idVendor.match(line_vendor)
 
 	if res:
-		if not prod_vendor["Manufacturer"]:
-			prod_vendor["Manufacturer"] = (res.group(0)).split("  ")[1]
+	    if not prod_vendor["Manufacturer"]:
+	        prod_vendor["Manufacturer"] = (res.group(0)).split("  ")[1]
 
-		for line_product in f_in:
-			res = regex_idProduct.match(line_product)
+	    for line_product in f_in:
+		res = regex_idProduct.match(line_product)
 
-			if res:
-				if not prod_vendor["Product"]:
-					prod_vendor["Product"] = (res.group(0)).split("  ")[1]
-		
-					return prod_vendor
+		if res:
+		    if not prod_vendor["Product"]:
+		    prod_vendor["Product"] = (res.group(0)).split("  ")[1]
+		        
+                    f_in.close()
+		    return prod_vendor
 	
     f_in.close()
 
