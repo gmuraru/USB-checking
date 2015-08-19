@@ -60,7 +60,7 @@ const USBinhibitorWidget = new Lang.Class({
         this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
 
         let appColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: Columns.DISPLAY_NAME,
-                                                 title: _("Applications which enable Caffeine automatically") });
+                                                 title: _("Applications which enable USBInhibitor automatically") });
         let iconRenderer = new Gtk.CellRendererPixbuf;
         appColumn.pack_start(iconRenderer, false);
         appColumn.add_attribute(iconRenderer, "gicon", Columns.ICON);
