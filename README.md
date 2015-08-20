@@ -56,7 +56,8 @@ This would allow only Audio and USB Mass Storage devices.
 For this part is used a listener (to check when the screensaver is activated)
 and a dbus system service to start/stop the blocking.
 
-Also the dbus service is used in the gnome-shell-extension.
+Also the dbus service is used in the gnome-shell-extension and more updates for
+the extension are yet to come.
 
 Still working on improvements regarding the interface.
 
