@@ -1,3 +1,24 @@
+/**
+*    Copyright 2015 George-Cristian Muraru <murarugeorgec@gmail.com>
+*    Copyright 2015 Tobias Mueller <muelli@cryptobitch.de>
+*
+*    This file is part of USB Inhibitor.
+*
+*    USB Inhibitor is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    USB Inhibitor and the afferent extension is distributed in the hope that it
+*    will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with USB Inhibitor.  If not, see <http://www.gnu.org/licenses/>.
+**/
+
+
 const ScreenShield = imports.ui.screenShield;
 const Lang = imports.lang;                                                      
 const St = imports.gi.St;                                                       
@@ -13,21 +34,15 @@ const Atk = imports.gi.Atk;
 const Config = imports.misc.config;
 
 
-
 const Me = imports.misc.extensionUtils.getCurrentExtension();                   
 const Convenience = Me.imports.convenience; 
-
 
 const DisabledIcon = 'usb-unlock-new';
 const EnabledIcon = 'usb-lock-new';
 
 const SHOW_NOTIFICATIONS="show-notifications";
-/*
-const HIDDevice = 
-const MASSStorageDevice = 
-const AudioDevice = 
-const VideoDevice = 
-*/
+
+const IndicatorName = "USBInhibitor";
 
 const DBusUSBBlockerIface = '<node>\
   <interface name="org.gnome.USBBlocker.inhibit">\
@@ -44,10 +59,10 @@ const DBusUSBBlockerIface = '<node>\
 
 const DBusUSBBlockerProxy = Gio.DBusProxy.makeProxyWrapper(DBusUSBBlockerIface);
 
-const IndicatorName = "USBInhibitor";
 
 let USBBlocker;
 
+// Adapted from https://github.com/eonpatapon/gnome-shell-extension-caffeine     
 const Extension = new Lang.Class({
     Name: IndicatorName,
     Extends: PanelMenu.Button,
@@ -61,9 +76,9 @@ const Extension = new Lang.Class({
        	    style_class: 'system-status-icon',
        	});
         
+        this.actor.connect('button-press-event', Lang.bind(this, function() { this.toggleState("HAND"); } ));
         this.actor.add_actor(this._icon);
         this.actor.add_style_class_name('panel-status-button');
-        this.actor.connect('button-press-event', Lang.bind(this, function() { this.toggleState("HAND"); } ));
 
        
         this._usbBlocker = new DBusUSBBlockerProxy(Gio.DBus.system,
@@ -134,18 +149,18 @@ const Extension = new Lang.Class({
 
     // Currently the user can change the state even when the screen is locked
     disable: function() {
-        Main.notify(_("First disable " + this._fromLock));
-        if (!this._state && this._fromLock) {
-            this.toggleState("LOCKSCREEN");
+        if (this._fromLock) {
+            if (!this._state)
+                this.toggleState("LOCKSCREEN");
+            this.actor.hide();
         }
-         
-        if (!this._fromLock) {
+
+        else if (!this._fromLock) {
             if (this._state)
                 this.toggleState("LOCKSCREEN");
             return true;
-        }
-        
-
+       }
+    
         ScreenShield.ScreenShield.prototype.lock = this._lockOrig;
         return false;
     }

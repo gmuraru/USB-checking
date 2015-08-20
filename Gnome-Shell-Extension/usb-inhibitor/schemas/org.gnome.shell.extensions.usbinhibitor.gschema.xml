@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gnome-shell-extensions-usbinhibitor-daemon">
   <schema path="/org/gnome/shell/extensions/usbinhibitor/" id="org.gnome.shell.extensions.usbinhibitor">
-    <key type="as" name="inhibit-apps">
-        <default>[ ]</default>
-        <summary>Application list</summary>
-        <description>A list of strings, each containing an application id (desktop file name)</description>
-    </key>
     <key type="b" name="show-notifications">
         <default>true</default>
         <summary>Show notifications</summary>
