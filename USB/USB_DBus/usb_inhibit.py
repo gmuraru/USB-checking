@@ -1,5 +1,26 @@
 #! /usr/bin/env python
 
+#                                                                               
+#    Copyright 2015 George-Cristian Muraru <murarugeorgec@gmail.com>            
+#    Copyright 2015 Tobias Mueller <muelli@cryptobitch.de>                      
+#                                                                               
+#    This file is part of USB Inhibitor.                                        
+#                                                                               
+#    USB Inhibitor is free software: you can redistribute it and/or modify      
+#    it under the terms of the GNU General Public License as published by       
+#    the Free Software Foundation, either version 3 of the License, or          
+#    (at your option) any later version.                                        
+#                                                                               
+#    USB Inhibitor and the afferent extension is distributed in the hope that it
+#    will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
+#    GNU General Public License for more details.                               
+#                                                                               
+#    You should have received a copy of the GNU General Public License          
+#    along with USB Inhibitor.  If not, see <http://www.gnu.org/licenses/>.     
+#  
+
+
 import read_device
 import json
 import sys
@@ -11,12 +32,14 @@ import subprocess
 
 try:
     from pyudev import Context, Monitor, MonitorObserver
+
 except ImportError: 
     sys.exit("Check if you have installed the module pyudev:\n "\
 			"Installation: pip install pyudev")
 
 try:
 	import usb.core
+
 except ImportError:
     sys.exit("Check if you have installed the module pyusbhere:\n "\
 			"Installation: pip install pyusb --pre")
@@ -77,7 +100,6 @@ class USB_inhibit:
 
     # Validate the command
     def check_args(self):
-		
 	self.running_mode_cont = False
 	self.process = None
 
@@ -89,7 +111,7 @@ class USB_inhibit:
             if sys.argv[index+1:][0] == "allow":
                 try: 
                     self.device_class_non_block = [int(x, 0) for x in sys.argv[index+1:][1:]]
-                    print (self.device_class_non_block)
+
                 except ValueError:
                     sys.exit("Invalid arguments for allow - use only valid device classes")
 
@@ -117,7 +139,7 @@ class USB_inhibit:
 
 		
 
-	# The proper way to use the usb-inhibit
+    # The proper way to use the usb-inhibit
     def usage(self):
 	print("USB-inhibit\n"
 		"Call:\n"
@@ -134,7 +156,6 @@ class USB_inhibit:
     # Look for already connected devices and take their bus_id
     # !!! Not used !!!
     def form_initial_devices(self):
-
 	for device in self.context.list_devices(subsystem='usb',
                                                     DEVTYPE='usb_device'):  
 		                                                                        
@@ -145,9 +166,7 @@ class USB_inhibit:
 	        print(bus_id)
 		                                                                        
 	        (dev_name, key) = self.extract_information(device)              
-		                                                                        
-		#self.add_connected_device(key, dev_name, bus_id)	            
-	        self.connected_devices[key] = dev_name
+		self.add_connected_device(bus_id, dev_name, key)	            
 
     # Add a new connected device
     def add_connected_device(self, bus_id, dev_name, dev_id):
@@ -157,14 +176,15 @@ class USB_inhibit:
     # Remove a connected device using the bus_id
     def remove_connected_device(self, bus_id):                                  
         key = ""
+
         if bus_id in self.busID_key_map.keys():
             key = self.busID_key_map.pop(bus_id)                                    
+
 	return key                                                              
                                                                                 
 
     # Form the known devices dictionary
     def get_known_devices(self):
-
 	if os.path.isfile('../USB_devices/known_devices'):	                                                           
             with open('../USB_devices/known_devices', 'rt') as f_in:
 		try:	                                                                                  
@@ -176,7 +196,6 @@ class USB_inhibit:
 
     # Start a process
     def start_process(self):
-
 	try:
             pid = subprocess.Popen(self.process)
 
@@ -189,7 +208,6 @@ class USB_inhibit:
     # Rebind the devices that were disconnected (called when the inhibit is
     # stopped)
     def rebind_devices(self):
-
         with open('/sys/bus/usb/drivers_autoprobe', 'wt') as f_out:
             f_out.write("1")
 	
@@ -216,7 +234,6 @@ class USB_inhibit:
 
     # Start the usb-inhibit program 
     def start(self):
-
         self.observer = MonitorObserver(self.monitor, callback = self.start_monitor,
 		                                      name='monitor-observer') 
 
@@ -247,8 +264,7 @@ class USB_inhibit:
 	else:
             # For testing purposes one can let False and then run the inhibit
             # in continuous mode to see the output of it
-
-	    #self.observer.daemon = False
+	    self.observer.daemon = False
 	    self.observer.start()
 	    print("Runs in continuous mode")
 
@@ -256,8 +272,9 @@ class USB_inhibit:
         self.device_class_non_block.append(class_dev)
 
     def custom_search(self, dev):
+        # usb.util should be installed with the pyusb
 	import usb.util
-		
+
 	for descriptor_value in self.device_class_non_block:
 
     	    if dev.bDeviceClass == descriptor_value:
@@ -277,11 +294,10 @@ class USB_inhibit:
 
         return False
 
+
     # Start monitoring
     def start_monitor(self, device):
-
 	bus_id = device.sys_name
-
 	action = device.action                                                                          
 
 	# If a new device is added:
@@ -289,7 +305,6 @@ class USB_inhibit:
         # * check if the flag for known_devices is on and the devic
 	# is in the known devices dict
 	if action == 'add':
-
 	    devnum = int(device.attributes.get("devnum"))
 	    busnum = int(device.attributes.get("busnum"))
 			
@@ -309,6 +324,7 @@ class USB_inhibit:
 	    elif self.found(dev, list(usb.core.find(find_all=True, custom_match = self.custom_search))):
 		print("Device is on non-blocking list")
 		usb_on.usb_enable(bus_id)
+
 	    else:
 		print("Unkown device! Better block it!")
 
@@ -320,8 +336,8 @@ class USB_inhibit:
 		print("Device bus {}".format(bus_id))
 		self.remove_connected_device(bus_id)
 	
-def main():
 
+def main():
     usb_inhibit = USB_inhibit(True)
 
     try:

@@ -22,8 +22,8 @@ content is very simplified but it would be updated the following days):
         </policy>                                                               
                                                                                 
     <policy context="default">                                                  
-        <allow send_interface="org.me.ub"/>                                     
-        <allow send_destination="org.me.usb"/>                                  
+        <allow send_interface="org.gnome.USBBlocker.inhibit"/> 
+        <allow send_destination="org.gnome.USBBlocker"/>
     </policy>                                                                   
 </busconfig>
 ```
@@ -32,7 +32,7 @@ content is very simplified but it would be updated the following days):
 ```
 [D-BUS Service]                                                                 
 Name=org.gnome.USBBlocker                                                       
-Exec=/home/george/GSoC_overall/GSoC/USB/USB_DBus/test_dbus.py                   
+Exec=full_path_to:usb_inhibitor_dbus.py
 User=root 
 ```
 * Run from another terminal the *listener* that would check when the GNOME
@@ -40,4 +40,6 @@ screensaver is active (while it's active the usb_inhibit will kick in and
 when the screen is not blocked it would *bind* the new connecte devices)
 ```python monitor_lockscreen.py```
 
-    Or you could just call *usb_inhibit.py* and it would run in a continuous mode
+    Or you could just call *usb_inhibit.py* and it would run in a continuous
+mode - to block new usb devices that are connected and unknown (you must
+uncomment a line of code to see the devices that are blocked/not blocked).

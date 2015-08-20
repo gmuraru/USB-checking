@@ -1,4 +1,25 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
+
+#                                                                             
+#    Copyright 2015 George-Cristian Muraru <murarugeorgec@gmail.com>            
+#    Copyright 2015 Tobias Mueller <muelli@cryptobitch.de>                      
+#                                                                               
+#    This file is part of USB Inhibitor.                                        
+#                                                                               
+#    USB Inhibitor is free software: you can redistribute it and/or modify      
+#    it under the terms of the GNU General Public License as published by       
+#    the Free Software Foundation, either version 3 of the License, or          
+#    (at your option) any later version.                                        
+#                                                                               
+#    USB Inhibitor and the afferent extension is distributed in the hope that it
+#    will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
+#    GNU General Public License for more details.                               
+#                                                                               
+#    You should have received a copy of the GNU General Public License          
+#    along with USB Inhibitor.  If not, see <http://www.gnu.org/licenses/>.     
+#
+
 
 import json
 import sys
@@ -14,7 +35,6 @@ class RunningMode:
 
 
 class USB_ports:	
-
     # Start with no device
     connected_devices = {}
     known_devices = {}
@@ -42,20 +62,13 @@ class USB_ports:
 	self.get_connected_devices()
 
 
-
     def get_connected_devices(self):
-
 	print("Connected-devices that are new")
 	for device in self.context.list_devices(subsystem='usb',
 		                            		DEVTYPE='usb_device'):
 
 	    if device.find_parent(subsystem='usb', 
 					device_type='usb_device') != None:
-		'''	
-		print(bus_id)
-		print("-------------------------------------------")
-		'''
-
 	        bus_id = device.sys_name
 	
 		devnum = int(device.attributes.get("devnum"))
@@ -81,13 +94,10 @@ class USB_ports:
 	
     # The bus_id may change for a device if it is connected on a different port
     def ask_user(self, dev, dev_name, bus_id, dev_id):
-
 	print("A new device attached")
 	print("Device Product: " + dev_name["Product"]) 
 	print("Device Manufacturer: " + dev_name["Manufacturer"])
 	
-	print(dev)
-		
 	question = "Do you want to add it to the known devices list? (Y/N): "
 	user_input = None
 
@@ -118,9 +128,6 @@ class USB_ports:
     	    except KeyboardInterrupt:
 	        print("\nRebinding the devices...")
 	        self.usb_monitor_stop()
-
-
-			
 
 	    # If the answer is Y than we can trust that device
 	    if user_input.upper() == 'Y':
@@ -181,7 +188,6 @@ class USB_ports:
 
     # Waiting state and notification if a `new usb` has been connected
     def usb_monitor_start(self):
-
 	self.monitor.start()
 
 	for action, device in self.monitor:

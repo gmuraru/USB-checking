@@ -1,4 +1,25 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
+
+#                                                                             
+#    Copyright 2015 George-Cristian Muraru <murarugeorgec@gmail.com>            
+#    Copyright 2015 Tobias Mueller <muelli@cryptobitch.de>                      
+#                                                                               
+#    This file is part of USB Inhibitor.                                        
+#                                                                               
+#    USB Inhibitor is free software: you can redistribute it and/or modify      
+#    it under the terms of the GNU General Public License as published by       
+#    the Free Software Foundation, either version 3 of the License, or          
+#    (at your option) any later version.                                        
+#                                                                               
+#    USB Inhibitor and the afferent extension is distributed in the hope that it
+#    will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
+#    GNU General Public License for more details.                               
+#                                                                               
+#    You should have received a copy of the GNU General Public License          
+#    along with USB Inhibitor.  If not, see <http://www.gnu.org/licenses/>.     
+#
+
 
 import threading
 from gi.repository import Gtk, GObject, GLib
@@ -8,6 +29,7 @@ import read_device
 import usb.core
 import time
 import gobject
+
 
 # Modified tutorial http://python-gtk-3-tutorial.readthedocs.org/en/latest/treeview.html
 class USB_ViewFilterWindow(Gtk.Window):
@@ -42,9 +64,7 @@ class USB_ViewFilterWindow(Gtk.Window):
         col = Gtk.TreeViewColumn("Known Device", Gtk.CellRendererPixbuf(), stock_id = 0)
         self.treeview.append_column(col)
 
-		#col.set_cell_data_func( cell, self._render_icon)
         for i, column_title in enumerate(["Connected", "DescriptorInfo", "Manufacturer", "Product"]):
-            print (str(i) + "     " + column_title)
             i = i + 1
             renderer = Gtk.CellRendererText()
             renderer.set_property('cell-background', 'grey')
@@ -88,7 +108,6 @@ class USB_ViewFilterWindow(Gtk.Window):
 
 
     def first_populate_table(self):
-
         for device_id in self.device_monitor.known_devices.keys():
 
             if device_id in self.device_monitor.connected_devices.keys():
@@ -117,12 +136,10 @@ class USB_ViewFilterWindow(Gtk.Window):
     # Write selected device to file
     # The device would be kept in a buffer until the program exits
     def write_to_known_devices(self, button):
-
         treeselection = self.treeview.get_selection()
         model, treeiter = treeselection.get_selected()
         device = {}
 
-        print ("HERE it is ")
         if treeiter != None:
 
             if model[treeiter][0] == Gtk.STOCK_YES:
@@ -134,7 +151,6 @@ class USB_ViewFilterWindow(Gtk.Window):
             if model[treeiter][4]:
                 device["Product"] = model[treeiter][4]
 
-            print("HEllo there !")
             print(device["Product"])
             print(device["Manufacturer"])
             
@@ -150,7 +166,6 @@ class USB_ViewFilterWindow(Gtk.Window):
 
 
         else:
-
             dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
             Gtk.ButtonsType.CANCEL, "A USB device must be selected!")
             dialog.format_secondary_text("The selected USB device will be written to a 'know_hosts' file")
@@ -158,7 +173,6 @@ class USB_ViewFilterWindow(Gtk.Window):
             
     # Remove selected device from file
     def remove_from_known_devices(self, button):
-
         treeselection = self.treeview.get_selection()
         model, treeiter = treeselection.get_selected()
         device = {}
@@ -237,6 +251,7 @@ class USB_ViewFilterWindow(Gtk.Window):
 	
         return True
   
+
     # Remove one entry from the usb_list (to remove from the gtk tree)
     def remove_from_usb_list(self, bus_id):
         for entry in self.usb_list:
@@ -247,7 +262,6 @@ class USB_ViewFilterWindow(Gtk.Window):
 
 	# Tests if the usb is connected, known device or unknown
     def usb_filter_func(self, model, iter, data):
-
         if self.current_filter_usb is None or self.current_filter_usb == "None":
             return True
 
