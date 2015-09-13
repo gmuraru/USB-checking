@@ -71,7 +71,7 @@ class USB_inhibit:
     AUDIO = 0x01
     VIDEO = 0x0E
 
-    device_class_non_block = []
+    device_class_nonblock = [0x09] # Allow USB hubs to connect
 
 
     # Class initializer
@@ -110,7 +110,7 @@ class USB_inhibit:
             # Check if block
             if sys.argv[index+1:][0] == "allow":
                 try: 
-                    self.device_class_non_block = [int(x, 0) for x in sys.argv[index+1:][1:]]
+                    self.device_class_nonblock = [int(x, 0) for x in sys.argv[index+1:][1:]]
 
                 except ValueError:
                     sys.exit("Invalid arguments for allow - use only valid device classes")
@@ -224,7 +224,9 @@ class USB_inhibit:
 	print("Stop monitoring...")
 
 	self.rebind_devices()
-	self.observer.stop()
+
+        if self.observer != None:
+    	    self.observer.stop()
 	
 	# For the dbus part we have to clear all the dict content
 	self.known_devices.clear()
@@ -235,7 +237,7 @@ class USB_inhibit:
     # Start the usb-inhibit program 
     def start(self):
         self.observer = MonitorObserver(self.monitor, callback = self.start_monitor,
-		                                      name='monitor-observer') 
+		                                      name='monitor-usb-inhibitor') 
 
 	# For the lock screen (the usb inhibit will continue to run until
 	# a signal is received -- that would tell the screen unlocked)
@@ -271,29 +273,6 @@ class USB_inhibit:
     def add_nonblock_device(self, class_dev):
         self.device_class_non_block.append(class_dev)
 
-    def custom_search(self, dev):
-        # usb.util should be installed with the pyusb
-	import usb.util
-
-	for descriptor_value in self.device_class_non_block:
-
-    	    if dev.bDeviceClass == descriptor_value:
-		return True
-
-	    for cfg in dev:
-		if usb.util.find_descriptor(cfg, bInterfaceClass = descriptor_value) is not None:
-	    	    return True
-
-        return False
-
-        
-    def found(self, dev, list_devices):
-        for maybe_device in list_devices:
-            if dev.bus == maybe_device.bus and dev.address == maybe_device.address:
-                return True
-
-        return False
-
 
     # Start monitoring
     def start_monitor(self, device):
@@ -321,7 +300,8 @@ class USB_inhibit:
 		print("Device in known list!")
 		usb_on.usb_enable(bus_id)
                 
-	    elif self.found(dev, list(usb.core.find(find_all=True, custom_match = self.custom_search))):
+	    elif read_device.find_device(dev, list(usb.core.find(find_all=True, custom_match = 
+                                            read_device.device_search(self.device_class_nonblock)))):
 		print("Device is on non-blocking list")
 		usb_on.usb_enable(bus_id)
 
@@ -335,7 +315,16 @@ class USB_inhibit:
 		print("Device removed!")
 		print("Device bus {}".format(bus_id))
 		self.remove_connected_device(bus_id)
+
+    # Bind the driver of a device
+    def bind_driver(self, bus_id, dev_id):
+        if self.connected_devices[bus_id][1] == dev_id:
+            usb_on.usb_enable(bus_id)
+            return True
+
+        return False
 	
+
 
 def main():
     usb_inhibit = USB_inhibit(True)

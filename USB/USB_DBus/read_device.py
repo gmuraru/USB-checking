@@ -75,7 +75,7 @@ name_device = ["Manufacturer", "Product"]
 
 def get_descriptors(device):
     information = ""
-
+    
     for dev_descriptor in device_descriptor:
 	information += str(device.__getattribute__(dev_descriptor)) + separator
 
@@ -158,3 +158,33 @@ def get_device_name(attributes):
     f_in.close()
 
     return prod_vendor
+
+
+class custom_search(object):
+    def __init__(self, nonblocked_devices):
+        self.non_block = nonblocked_devices
+        
+    def __call__(self, device):
+        # usb.util should be installed with the pyusb
+	import usb.util
+        
+	for descriptor_value in self.non_block:
+
+    	    if device.bDeviceClass == descriptor_value:
+		return True
+
+	    for cfg in device:
+		if usb.util.find_descriptor(cfg, bInterfaceClass = descriptor_value) is not None:
+	    	    return True
+
+        return False
+
+        
+def find_device(dev, list_devices):
+        for maybe_device in list_devices:
+            if dev.bus == maybe_device.bus and dev.address == maybe_device.address:
+                return True
+
+        return False
+
+
