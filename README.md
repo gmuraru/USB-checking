@@ -25,7 +25,8 @@ is locked or when the user wants
 ---
 ## USB_DBus folder
 
-** USB inhibit **
+**USB inhibit**
+
 This script could run in 3 modes (the complete description could be find in the
 script):
 
