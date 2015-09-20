@@ -45,17 +45,22 @@ const SHOW_NOTIFICATIONS="show-notifications";
 const IndicatorName = "USBInhibitor";
 
 const DBusUSBBlockerIface = '<node>\
-  <interface name="org.gnome.USBBlocker.inhibit">\
+  <interface name="org.gnome.USBInhibit">\
     <method name="get_status">\
-		<arg type="b" direction="out" />\
-	</method>\
-    <method name="start_monitor">\
+	<arg type="b" direction="out" />\
     </method>\
-    <method name="stop_monitor">\
+    <method name="start_inhibit">\
+    </method>\
+    <method name="stop_inhibit">\
+    </method>\
+    <method name="add_nonblock_device">\
+	<arg type="n" direction="in" />\
+    </method>\
+    <method name="remove_nonblock_device">\
+	<arg type="n" direction="in"/>\
     </method>\
   </interface>\
 </node>';
-
 
 const DBusUSBBlockerProxy = Gio.DBusProxy.makeProxyWrapper(DBusUSBBlockerIface);
 
@@ -72,32 +77,77 @@ const Extension = new Lang.Class({
         this.parent(null, IndicatorName);
         this._settings = Convenience.getSettings();
 
-		this._icon = new St.Icon({
-       	    style_class: 'system-status-icon',
+	this._icon = new St.Icon({
+		style_class: 'system-status-icon',
        	});
         
-        this.actor.connect('button-press-event', Lang.bind(this, function() { this.toggleState("HAND"); } ));
         this.actor.add_actor(this._icon);
         this.actor.add_style_class_name('panel-status-button');
 
-       
-        this._usbBlocker = new DBusUSBBlockerProxy(Gio.DBus.system,
-                                                          'org.gnome.USBBlocker',
-                                                          '/org/gnome/USBBlocker');
+	       
+        this._usbBlocker = new DBusUSBBlockerProxy(Gio.DBus.session,
+                                                         'org.gnome.USBInhibit',
+                                                         '/org/gnome/USBInhibit');
+
+
         this._usbBlocker.get_statusRemote(Lang.bind(this, function(dbus_status) {
             this._byHand = this._state = (dbus_status == "true");
-            if (this._state) {
-                this._icon.icon_name = EnabledIcon;
-            } else this._icon.icon_name = DisabledIcon;
-        }));
+	    let label_name; 
 
+	    if (this._state) {
+                this._icon.icon_name = EnabledIcon;
+            } else {
+		this._icon.icon_name = DisabledIcon;
+	    }
+	
+	}));
+
+
+	MassStorage = new PopupMenu.PopupSwitchMenuItem(_("Mass Storage"));
+	Video = new PopupMenu.PopupSwitchMenuItem(_("Video"));
+	Audio = new PopupMenu.PopupSwitchMenuItem(_("Audio"));
+	HID = new PopupMenu.PopupSwitchMenuItem(_("HID"));
+
+	MassStorage.connect('activate', Lang.bind(this, function() { this.switchAction(8, MassStorage); }));
+	Video.connect('activate', Lang.bind(this, function() { this.switchAction(14, Video); }));
+	Audio.connect('activate', Lang.bind(this, function() { this.switchAction(1, Audio); }));
+	HID.connect('activate', Lang.bind(this, function() { this.switchAction(3, HID); }));
+
+
+
+	this.menu.addMenuItem(MassStorage);
+	this.menu.addMenuItem(Video);
+	this.menu.addMenuItem(Audio);
+	this.menu.addMenuItem(HID);
+
+	this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+	label = new PopupMenu.PopupMenuItem(_("Change State"));
+	label.connect('activate', Lang.bind(this, function() { this.toggleState("HAND"); }));
+	this.menu.addMenuItem(label);
 
         this._lockOrig = ScreenShield.ScreenShield.prototype.lock;
         this._fromLock = false;
-        this._state = false;
         this._byHand = false;
     },
 
+
+
+    switchAction: function(code, caller) {
+	if (caller._switch.state)
+		this._addBDeviceClass(code);
+	else this._removeBDeviceClass(code);
+    },
+
+
+    _addBDeviceClass: function(code) {
+	this._usbBlocker.add_nonblock_deviceRemote(code);
+    },
+
+
+    _removeBDeviceClass: function(code) {
+	this._usbBlocker.remove_nonblock_deviceRemote(code);	
+    },
 
 
     enable: function() {
@@ -118,31 +168,33 @@ const Extension = new Lang.Class({
         this._fromLock = false;
     },
 
+
     toggleState: function(who) {
 
         if (this._state === true) {
+		
+		if (who === "HAND")
+			this._byHand = false;
 
-            if (who === "HAND")
-                this._byHand = false;
-
-			this._usbBlocker.stop_monitorRemote();
-			this._icon.icon_name = DisabledIcon;
-            this._state = false;
-            if (this._settings.get_boolean(SHOW_NOTIFICATIONS))
-			    Main.notify(_("USB blocking disabled"));     
+		this._usbBlocker.stop_inhibitRemote();
+		this._icon.icon_name = DisabledIcon;
+		this._state = false;
+            
+		if (this._settings.get_boolean(SHOW_NOTIFICATIONS))
+			Main.notify(_("USB blocking disabled"));     
 
         }
         else {
 
-            if (who === "HAND")
-                this._byHand = true;
+		if (who === "HAND")
+			this._byHand = true;
 
-			this._usbBlocker.start_monitorRemote();
-			this._icon.icon_name = EnabledIcon;
-			this._state = true;
+		this._usbBlocker.start_inhibitRemote();
+		this._icon.icon_name = EnabledIcon;
+		this._state = true;
             
-            if (this._settings.get_boolean(SHOW_NOTIFICATIONS))
-                Main.notify(_("USB blocking enabled"));
+		if (this._settings.get_boolean(SHOW_NOTIFICATIONS))
+			Main.notify(_("USB blocking enabled"));
         }
     },
 
