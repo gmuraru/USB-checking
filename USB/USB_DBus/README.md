@@ -36,7 +36,7 @@ Exec=full_path_to:usb_inhibitor_dbus.py
 User=root 
 ```
 
-![Screenshot](https://github.com/murarugeorgec/USB-checking/raw/master/USB_DBus/notification.png)
+![Screenshot](https://github.com/murarugeorgec/USB-checking/raw/master/USB/USB_DBus/notification.png)
 
 * Run from another terminal the *listener* that would check when the GNOME
 screensaver is active (while it's active the usb_inhibit will kick in and
