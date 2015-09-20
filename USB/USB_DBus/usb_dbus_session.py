@@ -28,6 +28,7 @@ class USB_Session_Blocker(dbus.service.Object):
 
     def __init__(self):
         self.usb_blocker = dbus.SystemBus().get_object('org.gnome.USBBlocker', '/org/gnome/USBBlocker')
+        self.notifier = dbus.SessionBus().get_object('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
 
 
         self.allowed_devices = []
@@ -76,6 +77,10 @@ class USB_Session_Blocker(dbus.service.Object):
         if bDeviceClass in self.allowed_devices:
             self.allowed_devices.remove(bDeviceClass)
 
+    @dbus.service.method(dbus_interface='org.gnome.USBInhibit', \
+                                            in_signature='', out_signature='s')
+    def show_nonblock_devices(self):
+        return str(self.allowed_devices)
 
     def device_detected(self, device):
         import usb.core
@@ -86,6 +91,19 @@ class USB_Session_Blocker(dbus.service.Object):
         # Check only new connected devices to see if they are on an allowed list
         if action == 'add':
             print ("Device attached")
+
+            notification = self.notifier.get_dbus_method('Notify', \
+                    'org.freedesktop.Notifications')
+
+            notification("USB-inhibitor",
+                         "0",
+                         "",
+                         "Unknown device connected",
+                         "An unknown device has been connected to the system. Do you want to allow it to connect?",
+                         ["Allow", "Connect", "Block", "Block"],
+                         {},
+                         5)
+
             devnum = int(device.attributes.get("devnum"))
             busnum = int(device.attributes.get("busnum"))
 
