@@ -301,7 +301,7 @@ class USB_inhibit:
 		usb_on.usb_enable(bus_id)
                 
 	    elif read_device.find_device(dev, list(usb.core.find(find_all=True, custom_match = 
-                                            read_device.device_search(self.device_class_nonblock)))):
+                                            read_device.custom_search(self.device_class_nonblock)))):
 		print("Device is on non-blocking list")
 		usb_on.usb_enable(bus_id)
 

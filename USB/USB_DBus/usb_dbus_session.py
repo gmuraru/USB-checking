@@ -68,6 +68,14 @@ class USB_Session_Blocker(dbus.service.Object):
         print ("Add device with the bDeviceClass code " + str(bDeviceClass))
         self.allowed_devices.append(bDeviceClass)
 
+    
+    @dbus.service.method(dbus_interface='org.gnome.USBInhibit', \
+                                            in_signature='n', out_signature='')
+    def remove_nonblock_device(self, bDeviceClass):
+        print ("Remove device with the bDeviceClass code " + str(bDeviceClass))
+        if bDeviceClass in self.allowed_devices:
+            self.allowed_devices.remove(bDeviceClass)
+
 
     def device_detected(self, device):
         import usb.core
