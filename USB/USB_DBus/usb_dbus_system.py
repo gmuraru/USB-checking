@@ -40,6 +40,9 @@ class USB_Service_Blocker(dbus.service.Object):
     @dbus.service.method(dbus_interface='org.gnome.USBBlocker.device',
                                                 in_signature='ss', out_signature='b')
     def enable_device(self, bus_id, dev_id):
+        print (bus_id)
+        print (dev_id)
+        
         return self.usb_monitor.bind_driver(bus_id, dev_id)
 
 

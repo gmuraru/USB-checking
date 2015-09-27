@@ -8,6 +8,7 @@ import dbus.service
 from gi.repository import GLib
 import read_device
 from dbus.mainloop.glib import DBusGMainLoop
+import getpass, json
 
 try:
     from pyudev import Context, Monitor, MonitorObserver
@@ -27,9 +28,18 @@ class USB_Session_Blocker(dbus.service.Object):
     monitor.filter_by(subsystem='usb', device_type='usb_device')
 
     def __init__(self):
+
+        try:
+            with open('/tmp/trusted_devices_' + getpass.getuser(), 'rt') as f_in:
+                self.trusted_devices = json.load(f_in)
+        
+        except IOError:
+            self.trusted_devices = []
+
         self.usb_blocker = dbus.SystemBus().get_object('org.gnome.USBBlocker', '/org/gnome/USBBlocker')
         self.notifier = dbus.SessionBus().get_object('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
-
+        self.observer = None
+        self.number_notifications = {}
 
         self.allowed_devices = []
 	bus_name = dbus.service.BusName('org.gnome.USBInhibit', bus=dbus.SessionBus())
@@ -44,8 +54,14 @@ class USB_Session_Blocker(dbus.service.Object):
 	
     @dbus.service.method(dbus_interface='org.gnome.USBInhibit')
     def start_inhibit(self):
+        self.notification = self.notifier.get_dbus_method('Notify', \
+                    'org.freedesktop.Notifications')
+
         self.observer = MonitorObserver(self.monitor, callback = self.device_detected,
 		                                      name='monitor-usb-session') 
+    
+        self.notifier.connect_to_signal('ActionInvoked', self.action_new_device)
+        
 
         self.observer.daemon = True
         self.observer.start()
@@ -53,6 +69,22 @@ class USB_Session_Blocker(dbus.service.Object):
         print("Start monitoring Dbus session message")
         self.usb_blocker.get_dbus_method('start', 'org.gnome.USBBlocker.inhibit')()
                 
+    
+    def action_new_device(self, id, action):
+        if id in self.number_notifications:
+            if action == "Allow":
+                bus_id, dev_id = self.number_notifications.pop(id)
+                if self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id):
+                    self.trusted_devices.append(dev_id)
+                    self.write_trusted_devices()
+
+                print (bus_id)
+                print (dev_id)
+
+            # If the action is Block then the device must remain blocked
+            if action == "Block":
+                pass
+        
 
     @dbus.service.method(dbus_interface='org.gnome.USBInhibit')
     def stop_inhibit(self):
@@ -77,10 +109,12 @@ class USB_Session_Blocker(dbus.service.Object):
         if bDeviceClass in self.allowed_devices:
             self.allowed_devices.remove(bDeviceClass)
 
+
     @dbus.service.method(dbus_interface='org.gnome.USBInhibit', \
                                             in_signature='', out_signature='s')
     def show_nonblock_devices(self):
         return str(self.allowed_devices)
+
 
     def device_detected(self, device):
         import usb.core
@@ -91,31 +125,44 @@ class USB_Session_Blocker(dbus.service.Object):
         # Check only new connected devices to see if they are on an allowed list
         if action == 'add':
             print ("Device attached")
-
-            notification = self.notifier.get_dbus_method('Notify', \
-                    'org.freedesktop.Notifications')
-
-            notification("USB-inhibitor",
-                         "0",
-                         "",
-                         "Unknown device connected",
-                         "An unknown device has been connected to the system. Do you want to allow it to connect?",
-                         ["Allow", "Connect", "Block", "Block"],
-                         {},
-                         5)
-
+     
             devnum = int(device.attributes.get("devnum"))
             busnum = int(device.attributes.get("busnum"))
-
+       
             dev = usb.core.find(address=devnum, bus=busnum)
 
+            # Get the device unique id
             dev_id = read_device.get_descriptors(dev)
-            
+
+            if dev_id in self.trusted_devices:
+                self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id)
+                return
+
+     
+            id_notification = self.notification("USB-inhibitor",
+                                                "0",
+                                                "",
+                                                "Unknown device connected",
+                                                "An unknown device has been connected to the system. Do you want to allow it to connect?",
+                                                ["Allow", "Connect", "Block", "Block"],
+                                                {},
+                                                5)
+
+            self.number_notifications[id_notification] = [bus_id, dev_id]
+
             if read_device.find_device(dev, list(usb.core.find(find_all = True,
                 custom_match = read_device.custom_search(self.allowed_devices)))):
 
                 print ("Device found on the non blocking list -- session")
-                self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id)
+                if self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id):
+                    self.trusted_devices.append(dev_id)
+                    self.write_trusted_devices()
+
+
+
+    def write_trusted_devices(self):
+        with open('/tmp/trusted_devices_'+ getpass.getuser(), 'wt') as f_out:
+            json.dump(self.trusted_devices, f_out)
 
         
 DBusGMainLoop(set_as_default=True)
