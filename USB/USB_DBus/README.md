@@ -20,20 +20,31 @@ content is very simplified but it would be updated the following days):
         <policy user="root">                                                    
                 <allow own="*"/>                                                
         </policy>                                                               
-                                                                                
-    <policy context="default">                                                  
-        <allow send_interface="org.gnome.USBBlocker.inhibit"/> 
-        <allow send_destination="org.gnome.USBBlocker"/>
-    </policy>                                                                   
+	
+	<policy context="default">                                                  
+		<allow send_interface="org.gnome.USBBlocker.inhibit"/>
+		<allow send_interface="org.gnome.USBBlocker.device"/>
+		<allow send_destination="org.gnome.USBBlocker"/> 
+
+	</policy>                                                                   
+
 </busconfig>
 ```
-* Also there must be a file in *org.gnome.USBBlocker.service* in the
-**/usr/share/dbus-1/system-services** directory with the following content:
+* Also there must be a file *org.gnome.USBBlocker.service* (system dbus) in
+the **/usr/share/dbus-1/system-services** directory with the following content:
 ```
 [D-BUS Service]                                                                 
 Name=org.gnome.USBBlocker                                                       
-Exec=full_path_to:usb_inhibitor_dbus.py
+Exec=full_path_to:usb_dbus_system.py
 User=root 
+```
+
+* And also a file in *org.gnome.USBInhibit.service* (session dbus) in the
+**/usr/share/dbus-1/services** directory with the following content:
+```
+[D-Bus Service]
+Name=org.gnome.USBInhibit
+Exec=full_path_to:usb_dbus_session.py
 ```
 
 ![Screenshot](https://github.com/murarugeorgec/USB-checking/raw/master/USB/USB_DBus/notification.png)
