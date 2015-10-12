@@ -89,6 +89,33 @@ const Extension = new Lang.Class({
                                                          'org.gnome.USBInhibit',
                                                          '/org/gnome/USBInhibit');
 
+	
+	subMenu = new PopupMenu.PopupSubMenuMenuItem(_("Allow devices"));
+
+
+	// Some USB Classes (bDeviceClass)
+	Audio = new PopupMenu.PopupSwitchMenuItem(_("Audio"));
+	HID = new PopupMenu.PopupSwitchMenuItem(_("HID"));
+	Printer = new PopupMenu.PopupSwitchMenuItem(_("Printer"));
+	MassStorage = new PopupMenu.PopupSwitchMenuItem(_("Mass Storage"));
+	Video = new PopupMenu.PopupSwitchMenuItem(_("Video"));
+
+
+	HID.connect('activate', Lang.bind(this, function() { this.switchAction(3, HID); }));
+	Printer.connect('activate', Lang.bind(this, function() { this.switchAction(7, Printer); }));
+	MassStorage.connect('activate', Lang.bind(this, function() { this.switchAction(8, MassStorage); }));
+	Video.connect('activate', Lang.bind(this, function() { this.switchAction(14, Video); }));
+	Audio.connect('activate', Lang.bind(this, function() { this.switchAction(1, Audio); }));
+
+
+	subMenu.menu.addMenuItem(HID);
+	subMenu.menu.addMenuItem(Printer);
+	subMenu.menu.addMenuItem(MassStorage);
+	subMenu.menu.addMenuItem(Video);
+	subMenu.menu.addMenuItem(Audio);
+
+	this.menu.addMenuItem(subMenu);
+	this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         this._usbBlocker.get_statusRemote(Lang.bind(this, function(dbus_status) {
             this._byHand = this._state = (dbus_status == "true");
@@ -96,35 +123,17 @@ const Extension = new Lang.Class({
 
 	    if (this._state) {
                 this._icon.icon_name = EnabledIcon;
+		label = new PopupMenu.PopupMenuItem(_("Deactivate"));
+		label.connect('activate', Lang.bind(this, function() { this.toggleState("USER"); }));
+		this.menu.addMenuItem(label);
             } else {
 		this._icon.icon_name = DisabledIcon;
+		label = new PopupMenu.PopupMenuItem(_("Activate"));
+		label.connect('activate', Lang.bind(this, function() { this.toggleState("USER"); }));
+		this.menu.addMenuItem(label);
 	    }
 	
 	}));
-
-
-	MassStorage = new PopupMenu.PopupSwitchMenuItem(_("Mass Storage"));
-	Video = new PopupMenu.PopupSwitchMenuItem(_("Video"));
-	Audio = new PopupMenu.PopupSwitchMenuItem(_("Audio"));
-	HID = new PopupMenu.PopupSwitchMenuItem(_("HID"));
-
-	MassStorage.connect('activate', Lang.bind(this, function() { this.switchAction(8, MassStorage); }));
-	Video.connect('activate', Lang.bind(this, function() { this.switchAction(14, Video); }));
-	Audio.connect('activate', Lang.bind(this, function() { this.switchAction(1, Audio); }));
-	HID.connect('activate', Lang.bind(this, function() { this.switchAction(3, HID); }));
-
-
-
-	this.menu.addMenuItem(MassStorage);
-	this.menu.addMenuItem(Video);
-	this.menu.addMenuItem(Audio);
-	this.menu.addMenuItem(HID);
-
-	this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-
-	label = new PopupMenu.PopupMenuItem(_("Change State"));
-	label.connect('activate', Lang.bind(this, function() { this.toggleState("HAND"); }));
-	this.menu.addMenuItem(label);
 
         this._lockOrig = ScreenShield.ScreenShield.prototype.lock;
         this._fromLock = false;
@@ -136,7 +145,7 @@ const Extension = new Lang.Class({
     switchAction: function(code, caller) {
 	if (caller._switch.state)
 		this._addBDeviceClass(code);
-	else this._removeBDeviceClass(code);
+	else this._removeBDeviceClass(code, "USER");
     },
 
 
@@ -145,8 +154,9 @@ const Extension = new Lang.Class({
     },
 
 
-    _removeBDeviceClass: function(code) {
+    _removeBDeviceClass: function(code, who) {
 	this._usbBlocker.remove_nonblock_deviceRemote(code);	
+
     },
 
 
@@ -170,15 +180,16 @@ const Extension = new Lang.Class({
 
 
     toggleState: function(who) {
-
+	
         if (this._state === true) {
-		
-		if (who === "HAND")
+
+		if (who === "USER")
 			this._byHand = false;
 
 		this._usbBlocker.stop_inhibitRemote();
 		this._icon.icon_name = DisabledIcon;
 		this._state = false;
+		this.menu._getMenuItems()[2].label.set_text("Activate");
             
 		if (this._settings.get_boolean(SHOW_NOTIFICATIONS))
 			Main.notify(_("USB blocking disabled"));     
@@ -186,12 +197,13 @@ const Extension = new Lang.Class({
         }
         else {
 
-		if (who === "HAND")
+		if (who === "USER")
 			this._byHand = true;
 
 		this._usbBlocker.start_inhibitRemote();
 		this._icon.icon_name = EnabledIcon;
 		this._state = true;
+		this.menu._getMenuItems()[2].label.set_text("Deactivate");
             
 		if (this._settings.get_boolean(SHOW_NOTIFICATIONS))
 			Main.notify(_("USB blocking enabled"));
@@ -218,18 +230,22 @@ const Extension = new Lang.Class({
     }
 });
 
+
 function init(extensionMeta) {
     theme = imports.gi.Gtk.IconTheme.get_default();                         
     theme.append_search_path(extensionMeta.path + "/icons"); 
 }
+
 
 function enable() {
     if (USBBlocker == null) {
         USBBlocker = new Extension();
         Main.panel.addToStatusArea(IndicatorName, USBBlocker);               
     }
+
     return USBBlocker.enable();
 }
+
 
 function disable() {
     if (USBBlocker.disable()) {
