@@ -296,18 +296,6 @@ class USB_inhibit:
 	    print("Device added!")
     	    print("Device name {}, dev_id {} and bus_id {}".format(dev_name, dev_id, bus_id))
 
-	    if self.flag_known_devices and dev_id in self.known_devices.keys():
-		print("Device in known list!")
-		usb_on.usb_enable(bus_id)
-                
-	    elif read_device.find_device(dev, list(usb.core.find(find_all=True, custom_match = 
-                                            read_device.custom_search(self.device_class_nonblock)))):
-		print("Device is on non-blocking list")
-		usb_on.usb_enable(bus_id)
-
-	    else:
-		print("Unkown device! Better block it!")
-
        
 	    # If a device is removed, simply remove it from the
 	    # connected device dict
@@ -318,6 +306,11 @@ class USB_inhibit:
 
     # Bind the driver of a device
     def bind_driver(self, bus_id, dev_id):
+        print (self.connected_devices)
+
+        if bus_id not in self.connected_devices.keys():
+            return False
+
         if self.connected_devices[bus_id][1] == dev_id:
             usb_on.usb_enable(bus_id)
             return True
