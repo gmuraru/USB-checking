@@ -8,7 +8,8 @@ import dbus.service
 from gi.repository import GLib
 import read_device
 from dbus.mainloop.glib import DBusGMainLoop
-import getpass, json
+from os.path import expanduser
+import json
 
 try:
     from pyudev import Context, Monitor, MonitorObserver
@@ -30,7 +31,7 @@ class USB_Session_Blocker(dbus.service.Object):
     def __init__(self):
 
         try:
-            with open('/tmp/trusted_devices_' + getpass.getuser(), 'rt') as f_in:
+            with open(expanduser("~") + '/.local/trusted_devices', 'rt') as f_in:
                 self.trusted_devices = json.load(f_in)
         
         except IOError:
