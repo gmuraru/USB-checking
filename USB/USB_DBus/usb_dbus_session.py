@@ -73,6 +73,7 @@ class USB_Session_Blocker(dbus.service.Object):
     def action_new_device(self, id, action):
         if id in self.number_notifications:
             if action == "Allow":
+                print "Allowed"
                 bus_id, dev_id = self.number_notifications.pop(id)
                 if self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id):
                     self.trusted_devices.append(dev_id)
@@ -83,7 +84,7 @@ class USB_Session_Blocker(dbus.service.Object):
 
             # If the action is Block then the device must remain blocked
             if action == "Block":
-                pass
+                print "Blocked"
         
 
     @dbus.service.method(dbus_interface='org.gnome.USBInhibit')
@@ -136,9 +137,21 @@ class USB_Session_Blocker(dbus.service.Object):
 
             if dev_id in self.trusted_devices:
                 self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id)
+                self.trusted_devices.apppend(dev_id)
+                self.write_trusted_devices()
                 return
 
-     
+            if read_device.find_device(dev, list(usb.core.find(find_all = True,
+                custom_match = read_device.custom_search(self.allowed_devices)))):
+
+                print ("Device found on the non blocking list -- session")
+                if self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id):
+                    self.trusted_devices.append(dev_id)
+                    self.write_trusted_devices()
+
+                return
+
+
             id_notification = self.notification("USB-inhibitor",
                                                 "0",
                                                 "",
@@ -150,13 +163,7 @@ class USB_Session_Blocker(dbus.service.Object):
 
             self.number_notifications[id_notification] = [bus_id, dev_id]
 
-            if read_device.find_device(dev, list(usb.core.find(find_all = True,
-                custom_match = read_device.custom_search(self.allowed_devices)))):
-
-                print ("Device found on the non blocking list -- session")
-                if self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id):
-                    self.trusted_devices.append(dev_id)
-                    self.write_trusted_devices()
+            
 
 
 
