@@ -42,7 +42,8 @@ class USB_Service_Blocker(dbus.service.Object):
     def enable_device(self, bus_id, dev_id):
         print (bus_id)
         print (dev_id)
-        
+
+        import time; time.sleep(0.03)    
         return self.usb_monitor.bind_driver(bus_id, dev_id)
 
 
