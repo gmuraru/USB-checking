@@ -141,8 +141,6 @@ class USB_Session_Blocker(dbus.service.Object):
 
             if dev_id in self.trusted_devices:
                 self.usb_blocker.get_dbus_method('enable_device', 'org.gnome.USBBlocker.device')(bus_id, dev_id)
-                self.trusted_devices.apppend(dev_id)
-                self.write_trusted_devices()
                 return
 
             if read_device.find_device(dev, list(usb.core.find(find_all = True,
