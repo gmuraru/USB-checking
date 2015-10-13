@@ -31,8 +31,11 @@ class USB_Session_Blocker(dbus.service.Object):
     def __init__(self):
 
         try:
-            with open(expanduser("~") + '/.local/trusted_devices', 'rt') as f_in:
-                self.trusted_devices = json.load(f_in)
+            with open(expanduser("~") + '/.local/share/trusted_devices', 'rt') as f_in:
+                try:
+                    self.trusted_devices = json.load(f_in)
+                except ValueError:
+                    self.trusted_devices = []
         
         except IOError:
             self.trusted_devices = []
@@ -169,7 +172,7 @@ class USB_Session_Blocker(dbus.service.Object):
 
 
     def write_trusted_devices(self):
-        with open('/tmp/trusted_devices_'+ getpass.getuser(), 'wt') as f_out:
+        with open(expanduser("~") + '/.local/share/trusted_devices', 'wt') as f_out:
             json.dump(self.trusted_devices, f_out)
 
         
